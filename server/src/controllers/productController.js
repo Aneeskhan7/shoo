@@ -52,6 +52,13 @@ const shape = (p) => {
       sizeValue(a.size) - sizeValue(b.size),
   );
 
+  const stocks = p.variants.map((v) => v.stock);
+  const inStock = stocks.some((s) => s > 0);
+  // Every size/color is its own physical thrift pair — AVAILABLE only while
+  // none have sold, LIMITED once some (but not all) have, SOLD_OUT once
+  // every pair under this listing is gone.
+  const stockStatus = !inStock ? 'SOLD_OUT' : stocks.every((s) => s > 0) ? 'AVAILABLE' : 'LIMITED';
+
   return {
     ...p,
     variants,
@@ -60,7 +67,8 @@ const shape = (p) => {
     sizes: [...new Set(variants.map((v) => v.size))].sort((a, b) => sizeValue(a) - sizeValue(b)),
     minPrice: prices.length ? Math.min(...prices) : null,
     maxPrice: prices.length ? Math.max(...prices) : null,
-    inStock: p.variants.some((v) => v.stock > 0),
+    inStock,
+    stockStatus,
   };
 };
 

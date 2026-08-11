@@ -94,9 +94,14 @@ export const createOrder = asyncHandler(async (req, res) => {
       promo,
     });
 
-    const address = await tx.address.create({
-      data: { ...body.address, userId: req.user?.id ?? null },
-    });
+    // Reuse an existing saved address for this member instead of spawning a
+    // new row every order — the checkout form re-submits raw fields even
+    // when the shopper just picked one of their saved addresses, so without
+    // this dedupe check "Home" would multiply on every single order.
+    const address = req.user
+      ? (await tx.address.findFirst({ where: { userId: req.user.id, ...body.address } })) ??
+        (await tx.address.create({ data: { ...body.address, userId: req.user.id } }))
+      : await tx.address.create({ data: { ...body.address, userId: null } });
 
     // Conditional decrement: `stock: { gte }` makes the update a no-op under a
     // concurrent order, and count 0 aborts the whole transaction.

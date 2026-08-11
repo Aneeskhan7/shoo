@@ -53,7 +53,7 @@ export default function AdminOrderDetailPage() {
   };
 
   return (
-    <div className="max-w-[820px]">
+    <div className="mx-auto max-w-[820px]">
       <Link to="/admin/orders" className="text-[13px] text-grey-500 hover:underline">
         ← Orders
       </Link>

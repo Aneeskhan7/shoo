@@ -17,8 +17,21 @@ export default function ProductCard({ product, badge }) {
   const setCartOpen = useUIStore((s) => s.setCartOpen);
 
   const primaryColor = product.colors?.[0];
-  const firstInStock = product.variants?.find((v) => v.stock > 0);
+  const inStockVariants = product.variants?.filter((v) => v.stock > 0) ?? [];
+  const firstInStock = inStockVariants[0];
+  // More than one size in stock — quick-adding would silently pick one for
+  // them, so send them to the PDP to choose instead of guessing.
+  const needsSizeChoice = new Set(inStockVariants.map((v) => v.size)).size > 1;
   const soldOut = !product.inStock;
+  // Falls back to the plain AVAILABLE/SOLD_OUT read for any older cached
+  // response that predates the LIMITED state.
+  const stockStatus = product.stockStatus ?? (soldOut ? 'SOLD_OUT' : 'AVAILABLE');
+  const STATUS_COPY = { AVAILABLE: 'Available', LIMITED: 'Limited sizes', SOLD_OUT: 'Sold' };
+  const STATUS_CLASS = {
+    AVAILABLE: 'bg-green text-black',
+    LIMITED: 'border border-black bg-white text-black',
+    SOLD_OUT: 'bg-black text-off-white',
+  };
 
   const quickAdd = (e) => {
     e.preventDefault();
@@ -47,11 +60,9 @@ export default function ProductCard({ product, badge }) {
             </span>
           )}
           <span
-            className={`absolute right-3 top-3 rounded-[4px] px-[10px] py-[5px] text-[9px] font-bold tracking-[0.06em] ${
-              soldOut ? 'bg-black text-off-white' : 'bg-green text-black'
-            }`}
+            className={`absolute right-3 top-3 rounded-[4px] px-[10px] py-[5px] text-[9px] font-bold tracking-[0.06em] ${STATUS_CLASS[stockStatus]}`}
           >
-            {soldOut ? 'Sold' : 'Available'}
+            {STATUS_COPY[stockStatus]}
           </span>
         </div>
 
@@ -82,14 +93,23 @@ export default function ProductCard({ product, badge }) {
         >
           Quick View
         </Link>
-        <button
-          type="button"
-          onClick={quickAdd}
-          disabled={soldOut}
-          className="flex h-[40px] w-full items-center justify-center rounded-[6px] bg-black text-[12px] font-medium tracking-[0.01em] text-off-white transition-opacity hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-30"
-        >
-          {soldOut ? 'Sold out' : 'Add to Cart'}
-        </button>
+        {needsSizeChoice ? (
+          <Link
+            to={`/products/${product.slug}`}
+            className="flex h-[40px] w-full items-center justify-center rounded-[6px] bg-black text-[12px] font-medium tracking-[0.01em] text-off-white transition-opacity hover:opacity-85"
+          >
+            Select Size
+          </Link>
+        ) : (
+          <button
+            type="button"
+            onClick={quickAdd}
+            disabled={soldOut}
+            className="flex h-[40px] w-full items-center justify-center rounded-[6px] bg-black text-[12px] font-medium tracking-[0.01em] text-off-white transition-opacity hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-30"
+          >
+            {soldOut ? 'Sold out' : 'Add to Cart'}
+          </button>
+        )}
       </div>
     </article>
   );
