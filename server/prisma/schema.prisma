@@ -1,0 +1,391 @@
+// SHOO — Prisma Schema
+// PostgreSQL + Prisma ORM
+//
+// Phase 1 ships a guest storefront: the cart lives client-side and orders are
+// placed without an account. User/Address/CartItem/WishlistItem exist now so
+// Phase 2 (auth, account, wishlist) is additive and needs no data migration.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Users ──────────────────────────────────────────────────
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  role      Role     @default(CUSTOMER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  addresses Address[]
+  orders    Order[]
+  reviews   Review[]
+  wishlist  WishlistItem[]
+  cart      CartItem[]
+
+  @@map("users")
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+// ─── Address ────────────────────────────────────────────────
+model Address {
+  id         String  @id @default(uuid())
+  userId     String?
+  label      String  @default("Home")
+  firstName  String
+  lastName   String
+  phone      String // required for COD dispatch
+  street     String
+  city       String
+  postalCode String
+  country    String
+  isDefault  Boolean @default(false)
+
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders Order[]
+
+  @@map("addresses")
+}
+
+// ─── Brand ──────────────────────────────────────────────────
+model Brand {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  logoUrl     String?
+  website     String?
+  createdAt   DateTime @default(now())
+
+  products Product[]
+
+  @@map("brands")
+}
+
+// ─── Category ───────────────────────────────────────────────
+model Category {
+  id       String  @id @default(uuid())
+  name     String  @unique
+  slug     String  @unique
+  parentId String?
+
+  parent   Category?  @relation("SubCategories", fields: [parentId], references: [id])
+  children Category[] @relation("SubCategories")
+  products Product[]
+
+  @@map("categories")
+}
+
+// ─── Product ────────────────────────────────────────────────
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  description String?
+  story       String? // editorial copy for PDP
+  tagline     String? // short line under the PDP title
+  brandId     String
+  categoryId  String
+  gender      Gender   @default(UNISEX)
+  silhouette  String? // drives the 3D grid filter
+  isActive    Boolean  @default(true)
+  isFeatured  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  brand          Brand                  @relation(fields: [brandId], references: [id])
+  category       Category               @relation(fields: [categoryId], references: [id])
+  variants       ProductVariant[]
+  images         ProductImage[]
+  reviews        Review[]
+  wishlist       WishlistItem[]
+  cartItems      CartItem[]
+  orderItems     OrderItem[]
+  tags           ProductTag[]
+  conditionItems ProductConditionItem[]
+
+  @@index([isActive, isFeatured])
+  @@map("products")
+}
+
+enum Gender {
+  MEN
+  WOMEN
+  KIDS
+  UNISEX
+}
+
+// ─── Product Variant (size + color + price + stock) ─────────
+model ProductVariant {
+  id        String  @id @default(uuid())
+  productId String
+  size      String // "US 9"
+  colorName String // "Deep Noir"
+  colorHex  String // "#0A0A0A"
+  price     Decimal @db.Decimal(10, 2)
+  stock     Int     @default(0)
+  sku       String  @unique
+
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  @@index([productId])
+  @@map("product_variants")
+}
+
+// ─── Product Image ──────────────────────────────────────────
+model ProductImage {
+  id        String  @id @default(uuid())
+  productId String
+  url       String
+  publicId  String? // Cloudinary public_id — needed to delete the asset from Cloudinary.
+  // Null for images uploaded before the Cloudinary migration (local-disk
+  // files); the admin delete path falls back to removing those from disk.
+  altText   String?
+  colorName String? // ties a shot to a colorway
+  position  Int     @default(0)
+  isPrimary Boolean @default(false)
+  // Set only for thrift-condition close-up shots (outsole, heel, etc.) —
+  // null for ordinary gallery photos. Same ProductImage/Cloudinary pipeline,
+  // just tagged, so a condition photo never counts toward gallery position
+  // or gets promoted to primary.
+  conditionCategory ConditionCategory?
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_images")
+}
+
+// ─── Thrift Condition ─────────────────────────────────────────
+// One row per category per product — @@unique enforces exactly one status
+// per category, and an old product simply has zero rows until an admin
+// saves condition data for it (the PDP section only renders when present).
+enum ConditionCategory {
+  OUTSOLE
+  HEEL_WEAR
+  TOE_BOX
+  CREASES
+  SCRATCHES
+  STAINS
+  LABELS
+  DEFECTS
+}
+
+// Shared scale for every category — the wear categories use
+// NONE/MINIMAL/LIGHT/MODERATE/HEAVY, DEFECTS uses NONE/PRESENT. One enum
+// keeps the schema simple; the API validates which subset applies per
+// category (see adminProductController.js).
+enum ConditionStatus {
+  NONE
+  MINIMAL
+  LIGHT
+  MODERATE
+  HEAVY
+  PRESENT
+}
+
+model ProductConditionItem {
+  id        String            @id @default(uuid())
+  productId String
+  category  ConditionCategory
+  status    ConditionStatus   @default(NONE)
+  note      String?
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, category])
+  @@map("product_condition_items")
+}
+
+// ─── Product Tag ────────────────────────────────────────────
+model ProductTag {
+  id        String @id @default(uuid())
+  productId String
+  tag       String // "new-release", "bestseller", "sale"
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, tag])
+  @@map("product_tags")
+}
+
+// ─── Review ─────────────────────────────────────────────────
+model Review {
+  id         String   @id @default(uuid())
+  productId  String
+  userId     String?
+  authorName String // shown on the PDP; set from the user or a guest name
+  rating     Int // 1–5
+  title      String?
+  body       String
+  size       String?
+  fit        String? // "True to size", "Snug — half size up"
+  verified   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user    User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([productId])
+  @@map("reviews")
+}
+
+// ─── Wishlist (Phase 2) ─────────────────────────────────────
+model WishlistItem {
+  id        String   @id @default(uuid())
+  userId    String
+  productId String
+  addedAt   DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("wishlist_items")
+}
+
+// ─── Cart (Phase 2 — Phase 1 cart is client-side) ───────────
+model CartItem {
+  id        String   @id @default(uuid())
+  userId    String
+  productId String
+  variantId String
+  quantity  Int      @default(1)
+  addedAt   DateTime @default(now())
+
+  user    User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, variantId])
+  @@map("cart_items")
+}
+
+// ─── Order ──────────────────────────────────────────────────
+// userId is optional: Phase 1 places guest orders keyed by email + phone.
+model Order {
+  id            String        @id @default(uuid())
+  orderNumber   String        @unique // "SH-20260124"
+  userId        String?
+  guestEmail    String?
+  guestPhone    String?
+  addressId     String
+  status        OrderStatus   @default(PENDING)
+  paymentMethod PaymentMethod @default(COD)
+  paymentStatus PaymentStatus @default(UNPAID)
+  shippingLabel String? // "Standard — 3-5 business days"
+  subtotal      Decimal       @db.Decimal(10, 2)
+  discount      Decimal       @default(0) @db.Decimal(10, 2)
+  shippingCost  Decimal       @default(0) @db.Decimal(10, 2)
+  tax           Decimal       @default(0) @db.Decimal(10, 2)
+  total         Decimal       @db.Decimal(10, 2)
+  promoCode     String?
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Set once each transactional email actually sends — guards against
+  // duplicate sends if the request handler ever runs twice for the same order.
+  confirmationEmailSentAt DateTime?
+  shippedEmailSentAt      DateTime?
+  deliveredEmailSentAt    DateTime?
+
+  user    User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  address Address     @relation(fields: [addressId], references: [id])
+  items   OrderItem[]
+
+  @@index([userId])
+  @@map("orders")
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+// CARD and BANK exist so the UI can render all three Figma tabs and so adding a
+// gateway later needs no migration. The API rejects anything but COD today.
+enum PaymentMethod {
+  COD
+  CARD
+  BANK
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  REFUNDED
+}
+
+// ─── Order Item ─────────────────────────────────────────────
+// Name/size/color are snapshotted so a later product edit can't rewrite history.
+model OrderItem {
+  id          String  @id @default(uuid())
+  orderId     String
+  productId   String
+  variantId   String
+  productName String
+  productSlug String  @default("")
+  size        String
+  colorName   String
+  quantity    Int
+  unitPrice   Decimal @db.Decimal(10, 2)
+  total       Decimal @db.Decimal(10, 2)
+
+  order   Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product        @relation(fields: [productId], references: [id])
+  variant ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@map("order_items")
+}
+
+// ─── Promo Code ─────────────────────────────────────────────
+model PromoCode {
+  id        String    @id @default(uuid())
+  code      String    @unique
+  type      PromoType
+  value     Decimal   @db.Decimal(10, 2)
+  minOrder  Decimal?  @db.Decimal(10, 2)
+  maxUses   Int?
+  usedCount Int       @default(0)
+  expiresAt DateTime?
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+
+  @@map("promo_codes")
+}
+
+enum PromoType {
+  PERCENT
+  FIXED
+}
+
+// ─── Newsletter Subscriber ──────────────────────────────────
+// "Stay in the loop" footer signup. Standalone — not tied to User, since
+// subscribing never requires an account.
+model Subscriber {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("subscribers")
+}
