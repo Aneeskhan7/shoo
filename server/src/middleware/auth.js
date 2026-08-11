@@ -7,15 +7,22 @@ const COOKIE = 'shoo_token';
 export const signToken = (userId) =>
   jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
+// In production the client and API live on different domains (e.g. Vercel +
+// Render) — a cross-site fetch only carries the cookie if it's
+// SameSite=None, which itself requires Secure. Locally, both run on
+// localhost so Lax (no Secure requirement) keeps dev over plain HTTP working.
+const isProd = process.env.NODE_ENV === 'production';
+
 export const setAuthCookie = (res, token) =>
   res.cookie(COOKIE, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
-export const clearAuthCookie = (res) => res.clearCookie(COOKIE);
+export const clearAuthCookie = (res) =>
+  res.clearCookie(COOKIE, { httpOnly: true, secure: isProd, sameSite: isProd ? 'none' : 'lax' });
 
 const read = async (req) => {
   const token = req.cookies?.[COOKIE];
