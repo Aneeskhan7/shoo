@@ -177,7 +177,7 @@ export default function Navbar({ theme = 'dark' }) {
           </button>
 
           {/* Account — SIGN IN / JOIN SHOO for guests, initials + menu for members. */}
-          <div ref={accountRef} className="relative flex items-center">
+          <div ref={accountRef} className="relative hidden items-center lg:flex">
             <button
               type="button"
               onClick={() => setAccountOpen((o) => !o)}
