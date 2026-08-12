@@ -133,7 +133,7 @@ export default function FutureSection() {
             })}
           </div>
 
-          <ul className="mt-12 flex flex-col gap-5">
+          <ul className="mt-12 hidden flex-col gap-5 lg:flex">
             {FEATURES.map((f) => (
               <li key={f.title} className="flex items-center gap-4">
                 <span
@@ -151,7 +151,18 @@ export default function FutureSection() {
           </ul>
         </div>
 
-        <div className="min-h-[420px] flex-1 lg:min-h-0 lg:overflow-y-auto lg:pb-24">
+        {/* -mx-6 bleeds the grid edge-to-edge on mobile (canceling the
+            section's own px-6) now that the FEATURES list next to it is
+            gone below lg — noticeably bigger tiles, still locked to 3
+            columns per the design intent above. lg: resets the bleed since
+            desktop's own px-16 layout is unaffected either way. */}
+        {/* h-[600px] (not min-h) — flex-1's flex-basis:0% was collapsing the
+            container to whatever the canvas's own first-paint size happened
+            to be (~150px) since the mobile flex column has no bounded
+            parent height for flex-1 to grow into; an explicit height sidesteps
+            that resolution order entirely. flex-none keeps mobile from
+            fighting it; lg: restores the original flex-1 sizing desktop relies on. */}
+        <div className="-mx-6 h-[600px] flex-none lg:mx-0 lg:h-auto lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:pb-24">
           {reduced || !visible ? (
             <StaticGrid items={filtered} />
           ) : (

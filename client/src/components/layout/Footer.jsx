@@ -61,7 +61,7 @@ export default function Footer() {
       <div className="relative flex min-h-[220px] items-center pb-10 pt-12 sm:min-h-[300px] lg:min-h-[360px] lg:pt-16">
         <p
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 select-none whitespace-nowrap pl-[64px] font-black leading-[0.9]"
+          className="pointer-events-none absolute inset-x-0 select-none whitespace-nowrap pl-[64px] font-black leading-[0.9] max-md:inset-x-0 max-md:top-0 max-md:h-[68%] max-md:flex max-md:items-center max-md:justify-center max-md:pl-0 max-md:text-center"
           style={{
             fontSize: 'clamp(120px, 27.8vw, 400px)',
             letterSpacing: '-0.06em',
@@ -72,9 +72,9 @@ export default function Footer() {
         </p>
 
         <div className="relative flex w-full flex-wrap gap-y-12 px-6 lg:px-[64px]">
-          <div className="grid flex-1 grid-cols-2 gap-x-[36px] gap-y-10 md:grid-cols-4">
+          <div className="grid flex-1 grid-cols-2 gap-x-[36px] gap-y-10 max-md:mx-auto max-md:w-fit max-md:flex-none max-md:gap-x-[64px] max-md:text-center md:grid-cols-4">
             {COLUMNS.map((col) => (
-              <div key={col.title} className="flex flex-col gap-[14px]">
+              <div key={col.title} className="flex flex-col gap-[14px] max-md:items-center">
                 <h3 className="text-[11px] font-bold tracking-[0.12em]">{col.title}</h3>
                 {col.links.map(([label, to]) =>
                   to.startsWith('http') ? (

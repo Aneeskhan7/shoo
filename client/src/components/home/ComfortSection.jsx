@@ -23,35 +23,51 @@ const TIERS = [
   { name: 'City Step', note: 'Clean everyday', price: 12500, image: 'comfort-city-step' },
 ];
 
+// Below `sm` (the single-column mobile view), only these three tiers show,
+// picked to match what's actually being reviewed on a phone. `sm:` and up
+// (tablet/desktop) still render the full set, untouched.
+const MOBILE_VISIBLE = new Set(['Motion Lite', 'Urban Flex', 'City Step']);
+
 export default function ComfortSection() {
   return (
     <section className="bg-off-white py-20 text-black lg:py-[72px]">
       <div className="mx-auto flex max-w-[1440px] flex-col gap-12 px-6 lg:flex-row lg:items-start lg:gap-[58px] lg:px-20">
-        <div className="order-2 grid flex-1 grid-cols-1 gap-x-[22px] gap-y-[18px] sm:grid-cols-2 lg:order-1">
-          {TIERS.map((tier, i) => (
-            <article key={tier.name} className="w-full">
-              <div
-                className="relative aspect-[370/168] w-full overflow-hidden rounded-[6px]"
-                style={{ background: i % 2 === 0 ? '#F2F2F2' : '#E5E5E0' }}
+        <div className="order-2 flex flex-1 flex-col gap-8 lg:order-1">
+          <div className="grid grid-cols-1 gap-x-[22px] gap-y-[18px] sm:grid-cols-2">
+            {TIERS.map((tier, i) => (
+              <article
+                key={tier.name}
+                className={`w-full ${MOBILE_VISIBLE.has(tier.name) ? '' : 'hidden sm:block'}`}
               >
-                <img
-                  src={`/assets/editorial/${tier.image}.webp`}
-                  alt={tier.name}
-                  loading="lazy"
-                  className="absolute inset-0 h-full w-full object-cover"
-                />
-              </div>
-              <div className="flex items-center gap-2 pt-[10px]">
-                <div className="flex flex-col gap-[3px]">
-                  <p className="text-[13px] font-semibold tracking-[-0.005em]">{tier.name}</p>
-                  <p className="text-[10px] text-grey-500">{tier.note}</p>
+                <div
+                  className="relative aspect-[370/168] w-full overflow-hidden rounded-[6px]"
+                  style={{ background: i % 2 === 0 ? '#F2F2F2' : '#E5E5E0' }}
+                >
+                  <img
+                    src={`/assets/editorial/${tier.image}.webp`}
+                    alt={tier.name}
+                    loading="lazy"
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
                 </div>
-                <p className="ml-2 text-[11px] font-medium tracking-[0.04em]">
-                  {formatPrice(tier.price)}
-                </p>
-              </div>
-            </article>
-          ))}
+                <div className="flex items-center gap-2 pt-[10px]">
+                  <div className="flex flex-col gap-[3px]">
+                    <p className="text-[13px] font-semibold tracking-[-0.005em]">{tier.name}</p>
+                    <p className="text-[10px] text-grey-500">{tier.note}</p>
+                  </div>
+                  <p className="ml-2 hidden text-[11px] font-medium tracking-[0.04em] sm:block">
+                    {formatPrice(tier.price)}
+                  </p>
+                </div>
+              </article>
+            ))}
+          </div>
+          <Link
+            to="/shop"
+            className="inline-flex w-fit items-center rounded-full bg-black px-[22px] py-[14px] text-[13px] font-semibold tracking-[0.02em] text-off-white transition-opacity hover:opacity-85 sm:hidden"
+          >
+            See all →
+          </Link>
         </div>
 
         <div className="order-1 lg:order-2 lg:w-[440px] lg:pt-[0px]">
