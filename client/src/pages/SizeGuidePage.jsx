@@ -123,7 +123,11 @@ export default function SizeGuidePage() {
           </ol>
         </div>
 
-        <div className="flex items-center gap-6">
+        {/* Below lg: stacked + centered, so the box itself sits dead-center
+            (as a row, the trailing text pulled the combined block's center
+            off to one side, leaving the box looking off-center). lg: keeps
+            the original side-by-side arrangement. */}
+        <div className="flex flex-col items-center gap-3 lg:flex-row lg:gap-6">
           {/* Foot diagram — outline box, ellipse, toe dots (placeholder art) */}
           <div className="relative h-[136px] w-[130px] border border-grey-500/60">
             <span className="absolute left-1/2 top-[6px] flex -translate-x-1/2 gap-[3px]">
