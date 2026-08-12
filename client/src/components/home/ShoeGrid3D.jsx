@@ -45,19 +45,19 @@ const PITCH = 1.12;
 const DEPTH = 0.06;
 const HIT_SIZE = 1.06; // covers the card at its largest (hovered) scale
 
-function ShoeMesh({ position, item, hovered, onHover, onLeave, onNavigate }) {
+function ShoeMesh({ position, item, active, isTouch, onHover, onLeave, onTap, onNavigate }) {
   const group = useRef();
   const imageUrl = `/assets/editorial/${item.image}.webp`;
 
   useFrame((_, delta) => {
     if (!group.current) return;
-    const targetScale = hovered ? 1.32 : 1;
+    const targetScale = active ? 1.32 : 1;
     const s = group.current.scale.x;
     group.current.scale.setScalar(s + (targetScale - s) * Math.min(1, delta * 8));
 
     // rotation.y only ever eases toward 0 (front) or π (back) — never a free
     // accumulator — so it always settles flat, whichever way hover ends.
-    const targetRotation = hovered ? Math.PI : 0;
+    const targetRotation = active ? Math.PI : 0;
     const ry = group.current.rotation.y;
     group.current.rotation.y = ry + (targetRotation - ry) * Math.min(1, delta * 7);
   });
@@ -65,21 +65,32 @@ function ShoeMesh({ position, item, hovered, onHover, onLeave, onNavigate }) {
   return (
     <group position={position}>
       {/* Stable hover surface — flat, unrotated, unscaled, always at the
-          tile's home position. This is the only thing onPointerOver/Out
-          listen on. */}
+          tile's home position. On a mouse this is a plain hover target,
+          unchanged from before. On touch there's no real hover, so it's
+          switched to tap-to-flip instead — one tap flips the tile (and
+          un-flips whichever tile was flipped before), tapping "Buy Now"
+          still navigates via its own stopPropagation below. */}
       <mesh
         onPointerOver={(e) => {
+          if (isTouch) return;
           e.stopPropagation();
           onHover();
         }}
-        onPointerOut={onLeave}
+        onPointerOut={() => {
+          if (!isTouch) onLeave();
+        }}
+        onClick={(e) => {
+          if (!isTouch) return;
+          e.stopPropagation();
+          onTap();
+        }}
       >
         <planeGeometry args={[HIT_SIZE, HIT_SIZE]} />
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
 
-      {/* Everything below is purely visual — it reacts to `hovered`, it
-          never decides `hovered`. */}
+      {/* Everything below is purely visual — it reacts to `active`, it
+          never decides `active`. */}
       <group ref={group}>
         {/* The one physical card — just gives the tile its edge thickness. */}
         <RoundedBox args={[0.94, 0.94, DEPTH]} radius={0.06} smoothness={4}>
@@ -138,8 +149,12 @@ function ShoeMesh({ position, item, hovered, onHover, onLeave, onNavigate }) {
   );
 }
 
-function Grid({ items, onHoverChange, onNavigate }) {
+function Grid({ items, isTouch, onHoverChange, onNavigate }) {
   const [hovered, setHovered] = useState(null);
+  // Touch equivalent of `hovered` — a tap flips a tile and stays flipped
+  // (no "leave" event on touch to un-flip it automatically); tapping a
+  // different tile flips that one instead and un-flips this one.
+  const [tapped, setTapped] = useState(null);
 
   const positions = useMemo(() => {
     const rows = Math.ceil(items.length / COLS);
@@ -160,7 +175,8 @@ function Grid({ items, onHoverChange, onNavigate }) {
           key={item.id}
           item={item}
           position={positions[i]}
-          hovered={hovered === i}
+          active={hovered === i || tapped === i}
+          isTouch={isTouch}
           onHover={() => {
             setHovered(i);
             onHoverChange(true);
@@ -169,6 +185,7 @@ function Grid({ items, onHoverChange, onNavigate }) {
             setHovered((h) => (h === i ? null : h));
             onHoverChange(false);
           }}
+          onTap={() => setTapped((t) => (t === i ? null : i))}
           onNavigate={onNavigate}
         />
       ))}
@@ -183,15 +200,28 @@ export default function ShoeGrid3D({ items }) {
   if (!items.length) return null;
 
   const rows = Math.ceil(items.length / COLS);
+  // A perspective camera's apparent object size comes from its distance and
+  // FOV, not the canvas's CSS width — widening the mobile container alone
+  // (see FutureSection.jsx) doesn't make the grid look any bigger unless the
+  // camera also moves closer. Desktop's distance is untouched.
+  const mobile = typeof window !== 'undefined' && window.innerWidth < 1024;
+  // 0.6 made the camera too close — with fov 45 that only fit ~3 of the 4
+  // rows in frame, cropping the top/bottom row. 0.9 keeps the grid bigger
+  // than desktop's own scale (1×) while still fitting every row.
+  const distance = Math.max(6.4, rows * 1.55) * (mobile ? 0.9 : 1);
+  // Coarse pointer = touch — a real mouse/trackpad stays exactly as it was
+  // (hover to flip); a phone/tablet gets tap-to-flip instead, since there's
+  // no hover gesture to trigger it with.
+  const isTouch = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
 
   return (
     <div className="relative h-full w-full" style={{ cursor: pointer ? 'pointer' : 'default' }}>
       <Canvas
-        camera={{ position: [0, 0, Math.max(6.4, rows * 1.55)], fov: 45 }}
+        camera={{ position: [0, 0, distance], fov: 45 }}
         dpr={[1, 2]}
         gl={{ antialias: true, alpha: true }}
       >
-        <Grid items={items} onHoverChange={setPointer} onNavigate={navigate} />
+        <Grid items={items} isTouch={isTouch} onHoverChange={setPointer} onNavigate={navigate} />
       </Canvas>
     </div>
   );

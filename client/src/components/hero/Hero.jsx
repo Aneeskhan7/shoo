@@ -115,6 +115,14 @@ export default function Hero() {
   const scrollIndRef = useRef(null);
   const [active, setActive] = useState(0);
 
+  // Mobile/tablet — same pin + crossfade mechanic as desktop (one state
+  // fills the screen, the next replaces it on scroll), just without the
+  // 1440×900 frame's absolute-percentage geometry, which was never built
+  // for a narrow/tall viewport.
+  const mobileSectionRef = useRef(null);
+  const mobileStateRefs = useRef([]);
+  const mobileShoeRefs = useRef([]);
+
   // useLayoutEffect, not useEffect: a plain useEffect's cleanup is a passive
   // effect, deferred to run after paint. On a fast client-side route change,
   // React can start removing this section's DOM for the new route before
@@ -127,54 +135,86 @@ export default function Hero() {
   // revert() is guaranteed to finish before React proceeds.
   useLayoutEffect(() => {
     const reduced = prefersReducedMotion();
+    if (reduced) return undefined;
+
     const desktop = window.matchMedia('(min-width: 1024px)').matches;
-    // Pinning a touch viewport hijacks the scroll; both are opt-outs.
-    if (reduced || !desktop) return undefined;
 
     const ctx = gsap.context(() => {
-      gsap.from(shoeRef.current, {
-        y: -380,
-        opacity: 0,
-        rotate: -10,
-        duration: 1.4,
-        ease: 'elastic.out(1, 0.65)',
-        delay: 0.25,
-      });
-      gsap.from(wordmarkRef.current, {
-        opacity: 0,
-        y: 40,
-        duration: 1,
-        ease: 'power3.out',
-      });
-      gsap.from([state1Ref.current, scrollIndRef.current], {
-        opacity: 0,
-        y: 20,
-        duration: 0.8,
-        stagger: 0.1,
-        ease: 'power2.out',
-        delay: 0.5,
-      });
+      if (desktop) {
+        gsap.from(shoeRef.current, {
+          y: -380,
+          opacity: 0,
+          rotate: -10,
+          duration: 1.4,
+          ease: 'elastic.out(1, 0.65)',
+          delay: 0.25,
+        });
+        gsap.from(wordmarkRef.current, {
+          opacity: 0,
+          y: 40,
+          duration: 1,
+          ease: 'power3.out',
+        });
+        gsap.from([state1Ref.current, scrollIndRef.current], {
+          opacity: 0,
+          y: 20,
+          duration: 0.8,
+          stagger: 0.1,
+          ease: 'power2.out',
+          delay: 0.5,
+        });
 
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top top',
-          end: '+=200%',
-          pin: true,
-          pinType: 'fixed',
-          scrub: 1.2,
-          anticipatePin: 1,
-          onUpdate: (self) => setActive(self.progress > 0.5 ? 1 : 0),
-        },
-      });
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top top',
+            end: '+=200%',
+            pin: true,
+            pinType: 'fixed',
+            scrub: 1.2,
+            anticipatePin: 1,
+            onUpdate: (self) => setActive(self.progress > 0.5 ? 1 : 0),
+          },
+        });
 
-      tl.to(sectionRef.current, { ...THEME[3], ease: 'none' }, 0);
-      tl.to(wordmarkRef.current, { yPercent: 12, ease: 'none' }, 0);
-      tl.to(shoeRef.current, { yPercent: 14, scale: 0.88, ease: 'none' }, 0);
-      tl.to(shoeRef.current, { yPercent: 0, scale: 1, ease: 'none' }, 0.6);
-      tl.to(state1Ref.current, { opacity: 0, ease: 'none' }, 0.25);
-      tl.fromTo(state3Ref.current, { opacity: 0 }, { opacity: 1, ease: 'none' }, 0.55);
-      tl.to(scrollIndRef.current, { opacity: 0, ease: 'none' }, 0);
+        tl.to(sectionRef.current, { ...THEME[3], ease: 'none' }, 0);
+        tl.to(wordmarkRef.current, { yPercent: 12, ease: 'none' }, 0);
+        tl.to(shoeRef.current, { yPercent: 14, scale: 0.88, ease: 'none' }, 0);
+        tl.to(shoeRef.current, { yPercent: 0, scale: 1, ease: 'none' }, 0.6);
+        tl.to(state1Ref.current, { opacity: 0, ease: 'none' }, 0.25);
+        tl.fromTo(state3Ref.current, { opacity: 0 }, { opacity: 1, ease: 'none' }, 0.55);
+        tl.to(scrollIndRef.current, { opacity: 0, ease: 'none' }, 0);
+      } else {
+        // Same one-at-a-time pin+crossfade as desktop: state 0 fills the
+        // screen, scrolling one viewport's worth swaps it for state 1 —
+        // just a straight opacity crossfade of two full-screen blocks
+        // instead of desktop's richer multi-property scrub, since the
+        // mobile states don't share desktop's absolute-positioned pieces
+        // to interpolate individually.
+        gsap.from(mobileShoeRefs.current[0], {
+          y: -380,
+          opacity: 0,
+          rotate: -10,
+          duration: 1.4,
+          ease: 'elastic.out(1, 0.65)',
+          delay: 0.25,
+        });
+
+        gsap
+          .timeline({
+            scrollTrigger: {
+              trigger: mobileSectionRef.current,
+              start: 'top top',
+              end: '+=100%',
+              pin: true,
+              pinType: 'fixed',
+              scrub: 1,
+              anticipatePin: 1,
+            },
+          })
+          .to(mobileStateRefs.current[0], { opacity: 0, ease: 'none' }, 0)
+          .fromTo(mobileStateRefs.current[1], { opacity: 0 }, { opacity: 1, ease: 'none' }, 0);
+      }
     }, sectionRef);
 
     return () => ctx.revert();
@@ -269,19 +309,33 @@ export default function Hero() {
         </div>
       </section>
 
-      {/* ── Below 1024: stacked static states, no pinning ─────────── */}
-      <section className="lg:hidden" aria-label="Featured releases">
+      {/* ── Below 1024: same pin+crossfade idea, mobile-sized ────────
+          Both states are absolutely stacked in one 100svh box; state 1
+          starts at opacity 0 baked directly into the style (not GSAP) so
+          it's still there — just not hidden forever — for anyone on
+          reduced motion or before JS runs. */}
+      <section
+        ref={mobileSectionRef}
+        className="relative h-[100svh] w-full overflow-hidden lg:hidden"
+        aria-label="Featured releases"
+      >
         {STATES.map((s, i) => {
           const theme = THEME[i === 0 ? 1 : 3];
           return (
             <div
               key={s.slug}
-              className="relative flex min-h-[560px] flex-col justify-end overflow-hidden px-6 pb-12 pt-[104px]"
-              style={{ ...theme, background: 'var(--hero-bg)', color: 'var(--hero-fg)' }}
+              ref={(el) => (mobileStateRefs.current[i] = el)}
+              className="absolute inset-0 overflow-hidden"
+              style={{
+                ...theme,
+                background: 'var(--hero-bg)',
+                color: 'var(--hero-fg)',
+                opacity: i === 0 ? 1 : 0,
+              }}
             >
               <p
                 aria-hidden="true"
-                className="pointer-events-none absolute left-0 top-[18%] select-none whitespace-nowrap font-black"
+                className="pointer-events-none absolute left-0 top-[26%] z-0 select-none whitespace-nowrap font-black"
                 style={{
                   fontSize: '38vw',
                   lineHeight: 0.9,
@@ -291,20 +345,31 @@ export default function Hero() {
               >
                 SHOO
               </p>
-              <div className="relative mx-auto aspect-[1440/900] w-full max-w-[560px]">
-                <HeroImage slug={s.slug} />
+              {/* Shoe and text are independently positioned now (shoe from
+                  the top, text from the bottom) so each can be tuned on its
+                  own without the other moving — z-10 keeps both painting
+                  above the SHOO wordmark where the shoe overlaps it. */}
+              <div
+                ref={(el) => (mobileShoeRefs.current[i] = el)}
+                className="absolute inset-x-0 top-[32%] z-10 -mt-[104px] px-6"
+              >
+                <div className="relative -mx-6 aspect-[1440/900] w-[calc(100%+48px)] max-w-[640px]">
+                  <HeroImage slug={s.slug} style={{ left: '24%', top: '20%', width: '52%', height: '60%' }} />
+                </div>
               </div>
-              <p className="mt-8 max-w-[280px] text-[14px] leading-[1.55] opacity-80">
-                {s.tagline[0]} {s.tagline[1]}
-              </p>
-              <Link to={`/products/${s.slug}`} className="mt-6 block">
-                <h2 className="text-[26px] font-bold tracking-[-0.01em]">{s.name}</h2>
-              </Link>
-              <p className="mt-3 text-[11px] font-medium leading-[1.9] tracking-[0.04em] opacity-55">
-                RELEASE DATE · {s.releaseDate}
-                <br />
-                COLOR ONE · {s.colorName}
-              </p>
+              <div className="absolute inset-x-0 bottom-[216px] z-10 px-6">
+                <p className="max-w-[280px] text-[14px] leading-[1.55] opacity-80">
+                  {s.tagline[0]} {s.tagline[1]}
+                </p>
+                <Link to={`/products/${s.slug}`} className="mt-6 block">
+                  <h2 className="text-[26px] font-bold tracking-[-0.01em]">{s.name}</h2>
+                </Link>
+                <p className="mt-3 text-[11px] font-medium leading-[1.9] tracking-[0.04em] opacity-55">
+                  RELEASE DATE · {s.releaseDate}
+                  <br />
+                  COLOR ONE · {s.colorName}
+                </p>
+              </div>
             </div>
           );
         })}
