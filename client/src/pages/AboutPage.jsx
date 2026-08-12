@@ -24,9 +24,8 @@ const VALUES = [
 ];
 
 const TEAM = [
-  ['Anees Khan', 'Founder & Creative Director', '“Every shoe we carry is the shoe I searched for and couldn’t find in one place.”'],
-  ['Bilal Rana', 'Head of Product', '“We test every pair before it lists. If it doesn’t pass, it doesn’t ship — simple.”'],
-  ['Sarah Mir', 'Head of Brand', '“SHOO is not a product. It’s a position. And we’re not moving.”'],
+  ['Haris Saqib', 'Founder and Director', '“Every shoe we carry is the shoe I searched for and couldn’t find in one place.”', '/assets/team/haris-saqib.jpg'],
+  ['Anees Khan', 'Software Engineer', '“We test every pair before it lists. If it doesn’t pass, it doesn’t ship — simple.”', '/assets/team/anees-khan.jpg'],
 ];
 
 const PRESS = ['Hypebeast', 'Highsnobiety', 'Sole Collector', 'Complex', 'Sneaker Freaker'];
@@ -142,15 +141,16 @@ export default function AboutPage() {
             Behind SHOO
           </h2>
 
-          <div className="mt-12 grid gap-[40px] md:grid-cols-2 lg:grid-cols-3">
-            {TEAM.map(([name, role, quote]) => (
+          <div className="mt-12 grid max-w-[760px] gap-[40px] md:grid-cols-2">
+            {TEAM.map(([name, role, quote, photo]) => (
               <div
                 key={name}
                 className="flex flex-col gap-[14px] rounded-[8px] bg-[#1A1A1A] p-[28px]"
               >
-                <span
-                  className="h-[52px] w-[52px] rounded-full bg-[#333333]"
-                  aria-hidden="true"
+                <img
+                  src={photo}
+                  alt={name}
+                  className="h-[52px] w-[52px] rounded-full object-cover"
                 />
                 <p className="text-[18px] font-bold tracking-[-0.01em]">{name}</p>
                 <p className="text-[12px] tracking-[0.02em] text-green">{role}</p>
