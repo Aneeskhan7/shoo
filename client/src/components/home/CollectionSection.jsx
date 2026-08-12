@@ -64,7 +64,7 @@ export default function CollectionSection() {
   const wordmarkHeight = Math.round(wordmarkFontSize * WORDMARK_HEIGHT_RATIO);
 
   return (
-    <section className="relative bg-off-white pb-20 pt-6 text-black xl:py-0">
+    <section className="relative bg-off-white pb-20 pt-20 text-black xl:py-0">
       <div className="px-6 xl:hidden">
         <p className="text-eyebrow text-[15px] text-grey-500">02 — EXPLORE OUR</p>
         {/* Bleeds past the 24px page margin (unlike the eyebrow/paragraph
