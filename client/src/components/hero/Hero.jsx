@@ -335,7 +335,7 @@ export default function Hero() {
             >
               <p
                 aria-hidden="true"
-                className="pointer-events-none absolute left-0 top-[26%] z-0 select-none whitespace-nowrap font-black"
+                className="pointer-events-none absolute left-0 top-[30%] z-0 select-none whitespace-nowrap font-black"
                 style={{
                   fontSize: '38vw',
                   lineHeight: 0.9,
@@ -351,13 +351,13 @@ export default function Hero() {
                   above the SHOO wordmark where the shoe overlaps it. */}
               <div
                 ref={(el) => (mobileShoeRefs.current[i] = el)}
-                className="absolute inset-x-0 top-[32%] z-10 -mt-[104px] px-6"
+                className="absolute inset-x-0 top-[36%] z-10 -mt-[104px] px-6"
               >
                 <div className="relative -mx-6 aspect-[1440/900] w-[calc(100%+48px)] max-w-[640px]">
                   <HeroImage slug={s.slug} style={{ left: '24%', top: '20%', width: '52%', height: '60%' }} />
                 </div>
               </div>
-              <div className="absolute inset-x-0 bottom-[216px] z-10 px-6">
+              <div className="absolute inset-x-0 bottom-[176px] z-10 px-6">
                 <p className="max-w-[280px] text-[14px] leading-[1.55] opacity-80">
                   {s.tagline[0]} {s.tagline[1]}
                 </p>
