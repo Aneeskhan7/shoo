@@ -25,7 +25,6 @@ const VALUES = [
 
 const TEAM = [
   ['Haris Saqib', 'Founder and Director', '“Every shoe we carry is the shoe I searched for and couldn’t find in one place.”', '/assets/team/haris-saqib.jpg'],
-  ['Anees Khan', 'Software Engineer', '“We test every pair before it lists. If it doesn’t pass, it doesn’t ship — simple.”', '/assets/team/anees-khan.jpg'],
 ];
 
 const PRESS = ['Hypebeast', 'Highsnobiety', 'Sole Collector', 'Complex', 'Sneaker Freaker'];
@@ -141,7 +140,7 @@ export default function AboutPage() {
             Behind SHOO
           </h2>
 
-          <div className="mt-12 grid max-w-[760px] gap-[40px] md:grid-cols-2">
+          <div className="mt-12 grid max-w-[360px] gap-[40px]">
             {TEAM.map(([name, role, quote, photo]) => (
               <div
                 key={name}
