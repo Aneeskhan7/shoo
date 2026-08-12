@@ -157,24 +157,24 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-off-white pt-[120px] text-black lg:pt-[128px]">
       {/* Progress bar (40:16) */}
-      <div className="flex h-[60px] items-center gap-6 border-b border-black/10 px-6 lg:px-20">
+      <div className="flex h-[60px] items-center gap-2 border-b border-black/10 px-4 sm:gap-6 lg:px-20">
         {STEPS.map((label, i) => (
-          <div key={label} className="flex items-center gap-2">
+          <div key={label} className="flex items-center gap-1.5 sm:gap-2">
             <span
-              className={`flex h-[22px] w-[22px] items-center justify-center rounded-full text-[11px] font-bold ${
+              className={`flex h-[20px] w-[20px] shrink-0 items-center justify-center rounded-full text-[10px] font-bold sm:h-[22px] sm:w-[22px] sm:text-[11px] ${
                 i <= step ? 'bg-black text-off-white' : 'bg-black/10 text-grey-500'
               }`}
             >
               {i + 1}
             </span>
             <span
-              className={`text-[12px] font-medium tracking-[0.02em] ${
+              className={`whitespace-nowrap text-[11px] font-medium tracking-[0.02em] sm:text-[12px] ${
                 i <= step ? '' : 'text-grey-500'
               }`}
             >
               {label}
             </span>
-            {i < STEPS.length - 1 && <span className="ml-4 h-px w-8 bg-black/15" />}
+            {i < STEPS.length - 1 && <span className="ml-1.5 h-px w-4 shrink-0 bg-black/15 sm:ml-4 sm:w-8" />}
           </div>
         ))}
       </div>
@@ -246,7 +246,7 @@ export default function CheckoutPage() {
                 type="button"
                 disabled={!infoValid}
                 onClick={() => setStep(1)}
-                className="mt-8 rounded-full bg-black px-8 py-[18px] text-[14px] font-bold text-off-white disabled:opacity-30"
+                className="mt-8 rounded-full bg-black px-5 py-3 text-[12px] font-bold text-off-white disabled:opacity-30 sm:px-8 sm:py-[18px] sm:text-[14px]"
               >
                 Continue to Shipping →
               </button>
@@ -292,7 +292,7 @@ export default function CheckoutPage() {
                 <button
                   type="button"
                   onClick={() => setStep(2)}
-                  className="rounded-full bg-black px-8 py-[18px] text-[14px] font-bold text-off-white"
+                  className="rounded-full bg-black px-5 py-3 text-[12px] font-bold text-off-white sm:px-8 sm:py-[18px] sm:text-[14px]"
                 >
                   Continue to Payment →
                 </button>

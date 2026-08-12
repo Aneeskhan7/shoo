@@ -78,6 +78,21 @@ export default function Navbar({ theme = 'dark' }) {
 
   useEffect(() => setAccountOpen(false), [pathname]);
 
+  // The mobile menu wasn't a real overlay — it rendered inline, so scrolling
+  // it scrolled the page underneath, which also drives Hero's pinned
+  // ScrollTrigger (the hero would scrub/crossfade behind an open menu).
+  // body.style.overflow alone doesn't stop it — Lenis drives scroll via its
+  // own wheel/touch listeners, so it has to be told to stop directly too.
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    document.body.style.overflow = 'hidden';
+    window.__lenis?.stop();
+    return () => {
+      document.body.style.overflow = '';
+      window.__lenis?.start();
+    };
+  }, [menuOpen]);
+
   useEffect(() => {
     if (!accountOpen) return undefined;
     const onDown = (e) => {
@@ -287,7 +302,10 @@ export default function Navbar({ theme = 'dark' }) {
       </nav>
 
       {menuOpen && (
-        <div className="lg:hidden" style={{ background: dark ? '#0A0A0A' : '#F5F4F0' }}>
+        <div
+          className="fixed inset-x-0 bottom-0 top-[84px] z-40 overflow-y-auto overscroll-contain lg:hidden"
+          style={{ background: dark ? '#0A0A0A' : '#F5F4F0' }}
+        >
           <form onSubmit={submitSearch} className="px-6 pt-2">
             <label
               className="flex h-[42px] items-center gap-2 rounded-full px-4"
