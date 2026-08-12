@@ -357,7 +357,7 @@ export default function Hero() {
                   <HeroImage slug={s.slug} style={{ left: '24%', top: '20%', width: '52%', height: '60%' }} />
                 </div>
               </div>
-              <div className="absolute inset-x-0 bottom-[176px] z-10 px-6">
+              <div className="absolute inset-x-0 bottom-8 z-10 px-6">
                 <p className="max-w-[280px] text-[14px] leading-[1.55] opacity-80">
                   {s.tagline[0]} {s.tagline[1]}
                 </p>
