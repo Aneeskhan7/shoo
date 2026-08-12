@@ -89,7 +89,7 @@ export default function ProductCard({ product, badge }) {
       <div className="mt-auto flex flex-col items-center gap-[10px] px-[14px] pb-[14px]">
         <Link
           to={`/products/${product.slug}`}
-          className="flex h-[36px] w-[176px] items-center justify-center rounded-full bg-[#f2f2f2] text-[12px] font-medium tracking-[0.01em] text-grey-700 transition-colors hover:bg-[#e8e8e8]"
+          className="flex h-[36px] w-[130px] items-center justify-center rounded-full bg-[#f2f2f2] text-[12px] font-medium tracking-[0.01em] text-grey-700 transition-colors hover:bg-[#e8e8e8] md:w-[176px]"
         >
           Quick View
         </Link>

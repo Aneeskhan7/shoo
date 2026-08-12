@@ -26,9 +26,16 @@ export function useSmoothScroll() {
     gsap.ticker.add(raf);
     gsap.ticker.lagSmoothing(0);
 
+    // Lenis drives scroll itself (wheel/touch listeners → its own virtual
+    // position), so `body.style.overflow: hidden` alone doesn't stop it —
+    // an open overlay (mobile menu, cart drawer) needs to call
+    // window.__lenis.stop()/.start() directly to actually block scroll.
+    window.__lenis = lenis;
+
     return () => {
       gsap.ticker.remove(raf);
       lenis.destroy();
+      delete window.__lenis;
     };
   }, []);
 }

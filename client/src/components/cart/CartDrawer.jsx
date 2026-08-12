@@ -18,10 +18,14 @@ export default function CartDrawer() {
     const onKey = (e) => e.key === 'Escape' && setCartOpen(false);
     document.addEventListener('keydown', onKey);
     document.body.style.overflow = 'hidden';
+    // body.style.overflow alone doesn't stop Lenis (it drives scroll via its
+    // own wheel/touch listeners) — same fix as the mobile nav menu.
+    window.__lenis?.stop();
     panelRef.current?.focus();
     return () => {
       document.removeEventListener('keydown', onKey);
       document.body.style.overflow = '';
+      window.__lenis?.start();
     };
   }, [cartOpen, setCartOpen]);
 
