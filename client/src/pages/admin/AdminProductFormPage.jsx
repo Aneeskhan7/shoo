@@ -261,20 +261,52 @@ export default function AdminProductFormPage() {
     setUploading(false);
   };
 
+  // Both mutate the cache immediately (button reflects the click before the
+  // network round trip finishes) instead of waiting on invalidateQueries'
+  // refetch to paint anything — that round trip is what made these feel
+  // slow. A background invalidate still runs after to reconcile with the
+  // server (e.g. deleteProductImage's own primary-promotion), and any
+  // failure rolls the optimistic change back.
   const removeImage = async (imageId) => {
+    const key = qk.adminProduct(id);
+    const previous = qc.getQueryData(key);
+    qc.setQueryData(key, (old) =>
+      old?.product
+        ? { ...old, product: { ...old.product, images: old.product.images.filter((img) => img.id !== imageId) } }
+        : old,
+    );
     try {
       await deleteAdminProductImage(id, imageId);
-      qc.invalidateQueries({ queryKey: qk.adminProduct(id) });
+      qc.invalidateQueries({ queryKey: key });
     } catch (err) {
+      qc.setQueryData(key, previous);
       setError(err.message);
     }
   };
 
   const makePrimary = async (imageId) => {
+    const key = qk.adminProduct(id);
+    const previous = qc.getQueryData(key);
+    qc.setQueryData(key, (old) => {
+      if (!old?.product) return old;
+      const conditionImages = old.product.images.filter((img) => img.conditionCategory);
+      const gallery = old.product.images
+        .filter((img) => !img.conditionCategory)
+        .sort((a, b) => a.position - b.position);
+      const targetIdx = gallery.findIndex((img) => img.id === imageId);
+      if (targetIdx === -1) return old;
+      const [target] = gallery.splice(targetIdx, 1);
+      const reordered = [
+        { ...target, isPrimary: true, position: 0 },
+        ...gallery.map((img, i) => ({ ...img, isPrimary: false, position: i + 1 })),
+      ];
+      return { ...old, product: { ...old.product, images: [...reordered, ...conditionImages] } };
+    });
     try {
       await setAdminPrimaryImage(id, imageId);
-      qc.invalidateQueries({ queryKey: qk.adminProduct(id) });
+      qc.invalidateQueries({ queryKey: key });
     } catch (err) {
+      qc.setQueryData(key, previous);
       setError(err.message);
     }
   };
