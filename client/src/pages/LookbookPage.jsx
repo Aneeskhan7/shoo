@@ -25,19 +25,17 @@ const STATS = [
   ['48 hrs', 'Avg. Delivery Time'],
 ];
 
-// object-contain: these photos are tall composed shots with headline text
-// stacked above the shoe (see admin-uploaded photos) — the hero/side/grid
-// frames are shorter and wider than that, so object-cover was cropping the
-// top line of text off. Contain always shows the whole photo, letterboxed
-// on the existing dark background instead of cutting anything off.
+// The admin-uploaded photos are consistently tall composed shots (~3:4,
+// headline stacked above the shoe) — every frame below is sized to that
+// same ratio so object-cover fills it with only a sliver of crop instead of
+// either cutting the headline off (mismatched cover) or leaving big empty
+// letterbox bars (contain in a mismatched box).
 function DropArt({ product, className = '' }) {
   const src = getProductImage(product);
   return (
-    <div
-      className={`relative flex min-h-0 items-center justify-center overflow-hidden bg-[#141414] text-[#4A4A4A] ${className}`}
-    >
+    <div className={`relative min-h-0 overflow-hidden bg-[#141414] text-[#4A4A4A] ${className}`}>
       {src && (
-        <img src={src} alt={product.name} loading="lazy" className="h-full w-full object-contain" />
+        <img src={src} alt={product.name} loading="lazy" className="h-full w-full object-cover" />
       )}
     </div>
   );
@@ -92,10 +90,15 @@ export default function LookbookPage() {
 
       {!isLoading && hero && (
         <>
-          {/* ── Editorial grid (41:24) — 740px, asymmetric ───────── */}
-          <section className="grid gap-px bg-[#0a0a0a] lg:h-[740px] lg:grid-cols-2">
+          {/* ── Editorial grid (41:24) — asymmetric, height follows the
+              photos' own ~3:4 ratio now rather than a fixed pixel box.
+              2fr/1fr (not equal columns): at equal width, two stacked 3:4
+              side tiles would come out ~2x taller than the single hero
+              tile — halving the side column's width brings their combined
+              height back in line with the hero's. ──────────────────── */}
+          <section className="grid gap-px bg-[#0a0a0a] lg:grid-cols-[2fr_1fr]">
             <article className="flex flex-col">
-              <DropArt product={hero} className="h-[320px] lg:h-[520px]" />
+              <DropArt product={hero} className="aspect-[3/4]" />
               <div className="px-6 py-7 lg:px-5">
                 <h2 className="text-[22px] font-bold tracking-[-0.01em]">{hero.name}</h2>
                 {hero.tagline && <p className="mt-2 text-[13px] text-off-white/55">{hero.tagline}</p>}
@@ -118,7 +121,7 @@ export default function LookbookPage() {
             <div className="grid gap-px lg:grid-rows-2">
               {sideTiles.map((p) => (
                 <article key={p.slug} className="flex flex-col">
-                  <DropArt product={p} className="h-[220px] lg:h-[230px]" />
+                  <DropArt product={p} className="aspect-[3/4]" />
                   <div className="px-6 py-5 lg:px-5">
                     <h2 className="text-[18px] font-bold tracking-[-0.01em]">{p.name}</h2>
                     {p.tagline && <p className="mt-1 text-[12px] text-off-white/55">{p.tagline}</p>}
@@ -163,13 +166,14 @@ export default function LookbookPage() {
           </section>
 
           {gridTiles.length > 0 && (
-            /* ── Product row (41:70) — up to four 330px tiles, 540px ── */
-            <section className="bg-[#0a0a0a] px-6 py-16 lg:h-[540px] lg:px-16 lg:py-[40px]">
+            /* ── Product row (41:70) — up to four tiles, height follows
+                the photos' own ~3:4 ratio rather than a fixed pixel box ── */
+            <section className="bg-[#0a0a0a] px-6 py-16 lg:px-16 lg:py-[40px]">
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 {gridTiles.map((p) => (
                   <article key={p.slug}>
                     <Link to={`/products/${p.slug}`}>
-                      <div className="relative aspect-[330/220] overflow-hidden rounded-[6px] bg-[#141414] text-[#4A4A4A]">
+                      <div className="relative aspect-[3/4] overflow-hidden rounded-[6px] bg-[#141414] text-[#4A4A4A]">
                         <DropArt product={p} className="absolute inset-0" />
                       </div>
                     </Link>
