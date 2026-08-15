@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { prefersReducedMotion } from '../../hooks/useSmoothScroll';
-import ProductImage from '../ui/ProductImage';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -16,10 +15,14 @@ gsap.registerPlugin(ScrollTrigger);
  * layout scales exactly; below 1024px it falls back to a stacked flow layout
  * (inferred — the file has no sub-1440 frames).
  */
+// Hero photos are static site assets (assets/hero/), deliberately not tied
+// to the product catalogue — this section must keep rendering even when the
+// catalogue is empty or those specific products are removed in admin.
 const STATES = [
   {
     name: 'SHOO DRIFT ONE',
     slug: 'shoo-drift-one',
+    heroImage: '/assets/hero/shoo-drift-one.webp',
     colorName: 'Deep Noir',
     releaseDate: '2026-01-15',
     tagline: ["Don't chase energy. Wear SHOO.", 'Own your power. Every move, a message.'],
@@ -27,6 +30,7 @@ const STATES = [
   {
     name: 'SHOO ORBIT LX',
     slug: 'shoo-orbit-lx',
+    heroImage: '/assets/hero/shoo-orbit-lx.webp',
     colorName: 'Bone White',
     releaseDate: '2026-02-20',
     tagline: ['Move differently. SHOO ORBIT LX.', 'Built for the long walk.'],
@@ -57,13 +61,19 @@ const THEME = {
  * behind it — `object-contain` shows just the shoe against the hero's own
  * background.
  */
-function HeroImage({ slug, style, opacity = 1, eager = false }) {
+function HeroImage({ src, alt, style, opacity = 1, eager = false }) {
   return (
     <div
       className="absolute flex items-center justify-center transition-opacity duration-700"
       style={{ left: '29%', top: '25%', width: '42%', height: '50%', opacity, ...style }}
     >
-      <ProductImage product={{ slug }} fit="contain" eager={eager} />
+      <img
+        src={src}
+        alt={alt}
+        loading={eager ? 'eager' : 'lazy'}
+        decoding="async"
+        className="h-full w-full object-contain"
+      />
     </div>
   );
 }
@@ -246,8 +256,8 @@ export default function Hero() {
         </h1>
 
         <div ref={shoeRef} className="absolute inset-0">
-          <HeroImage slug={STATES[0].slug} opacity={active === 0 ? 1 : 0} eager />
-          <HeroImage slug={STATES[1].slug} opacity={active === 1 ? 1 : 0} />
+          <HeroImage src={STATES[0].heroImage} alt={STATES[0].name} opacity={active === 0 ? 1 : 0} eager />
+          <HeroImage src={STATES[1].heroImage} alt={STATES[1].name} opacity={active === 1 ? 1 : 0} />
         </div>
 
         {/* Tagline + carousel arrows */}
@@ -354,7 +364,11 @@ export default function Hero() {
                 className="absolute inset-x-0 top-[36%] z-10 -mt-[104px] px-6"
               >
                 <div className="relative -mx-6 aspect-[1440/900] w-[calc(100%+48px)] max-w-[640px]">
-                  <HeroImage slug={s.slug} style={{ left: '24%', top: '20%', width: '52%', height: '60%' }} />
+                  <HeroImage
+                    src={s.heroImage}
+                    alt={s.name}
+                    style={{ left: '24%', top: '20%', width: '52%', height: '60%' }}
+                  />
                 </div>
               </div>
               <div className="absolute inset-x-0 bottom-8 z-10 px-6">
