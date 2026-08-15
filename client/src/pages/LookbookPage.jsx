@@ -25,12 +25,19 @@ const STATS = [
   ['48 hrs', 'Avg. Delivery Time'],
 ];
 
+// object-contain: these photos are tall composed shots with headline text
+// stacked above the shoe (see admin-uploaded photos) — the hero/side/grid
+// frames are shorter and wider than that, so object-cover was cropping the
+// top line of text off. Contain always shows the whole photo, letterboxed
+// on the existing dark background instead of cutting anything off.
 function DropArt({ product, className = '' }) {
   const src = getProductImage(product);
   return (
-    <div className={`relative min-h-0 overflow-hidden bg-[#141414] text-[#4A4A4A] ${className}`}>
+    <div
+      className={`relative flex min-h-0 items-center justify-center overflow-hidden bg-[#141414] text-[#4A4A4A] ${className}`}
+    >
       {src && (
-        <img src={src} alt={product.name} loading="lazy" className="h-full w-full object-cover" />
+        <img src={src} alt={product.name} loading="lazy" className="h-full w-full object-contain" />
       )}
     </div>
   );
