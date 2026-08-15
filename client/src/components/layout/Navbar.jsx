@@ -15,6 +15,7 @@ const LINKS = [
   { label: 'MEN', to: '/shop?gender=MEN' },
   { label: 'WOMEN', to: '/shop?gender=WOMEN' },
   { label: 'KIDS', to: '/shop?gender=KIDS' },
+  { label: 'UNISEX', to: '/shop?gender=UNISEX' },
 ];
 
 const MEMBER_LINKS = [
