@@ -3,6 +3,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   getAdminMeta,
+  createAdminBrand,
   getAdminProduct,
   createAdminProduct,
   updateAdminProduct,
@@ -97,6 +98,9 @@ export default function AdminProductFormPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [addingBrand, setAddingBrand] = useState(false);
+  const [newBrandName, setNewBrandName] = useState('');
+  const [brandBusy, setBrandBusy] = useState(false);
 
   useEffect(() => {
     if (existing?.product) {
@@ -165,6 +169,24 @@ export default function AdminProductFormPage() {
       ...f,
       conditions: { ...f.conditions, [category]: { ...f.conditions[category], [key]: value } },
     }));
+
+  const addBrand = async (e) => {
+    e.preventDefault();
+    if (!newBrandName.trim()) return;
+    setBrandBusy(true);
+    setError(null);
+    try {
+      const { brand } = await createAdminBrand({ name: newBrandName.trim() });
+      await qc.invalidateQueries({ queryKey: qk.adminMeta() });
+      setForm((f) => ({ ...f, brandId: brand.id }));
+      setNewBrandName('');
+      setAddingBrand(false);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBrandBusy(false);
+    }
+  };
 
   const submit = async (e) => {
     e.preventDefault();
@@ -304,15 +326,58 @@ export default function AdminProductFormPage() {
           <Field label="Tagline">
             <input value={form.tagline} onChange={set('tagline')} className={inputCls} />
           </Field>
-          <Field label="Brand">
-            <select required value={form.brandId} onChange={set('brandId')} className={inputCls}>
-              {meta?.brands.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.name}
-                </option>
-              ))}
-            </select>
-          </Field>
+          <div className="flex flex-col gap-1">
+            <span className="text-[12px] font-medium text-grey-700">Brand</span>
+            {addingBrand ? (
+              <div className="flex gap-2">
+                <input
+                  autoFocus
+                  value={newBrandName}
+                  onChange={(e) => setNewBrandName(e.target.value)}
+                  placeholder="e.g. Nike"
+                  className={`${inputCls} flex-1`}
+                  onKeyDown={(e) => e.key === 'Escape' && setAddingBrand(false)}
+                />
+                <button
+                  type="button"
+                  onClick={addBrand}
+                  disabled={brandBusy || !newBrandName.trim()}
+                  className="h-[42px] shrink-0 rounded-[6px] bg-black px-3 text-[12px] font-medium text-off-white disabled:opacity-40"
+                >
+                  {brandBusy ? '…' : 'Add'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAddingBrand(false)}
+                  className="h-[42px] shrink-0 rounded-[6px] border border-black/15 px-3 text-[12px] font-medium hover:border-black"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <select
+                  required
+                  value={form.brandId}
+                  onChange={set('brandId')}
+                  className={`${inputCls} flex-1`}
+                >
+                  {meta?.brands.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.name}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => setAddingBrand(true)}
+                  className="h-[42px] shrink-0 rounded-[6px] border border-black/15 px-3 text-[12px] font-medium hover:border-black"
+                >
+                  + New
+                </button>
+              </div>
+            )}
+          </div>
           <Field label="Category">
             <select required value={form.categoryId} onChange={set('categoryId')} className={inputCls}>
               {meta?.categories.map((c) => (

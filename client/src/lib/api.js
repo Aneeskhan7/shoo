@@ -64,6 +64,7 @@ export const getMyOrder = (orderNumber) =>
 // ─── Admin (server re-checks auth + role on every one of these) ─────
 export const getAdminDashboard = () => api.get('/admin/dashboard').then((r) => r.data);
 export const getAdminMeta = () => api.get('/admin/meta').then((r) => r.data);
+export const createAdminBrand = (payload) => api.post('/admin/brands', payload).then((r) => r.data);
 
 export const getAdminProducts = (params) =>
   api.get('/admin/products', { params }).then((r) => r.data);
