@@ -20,9 +20,17 @@ const emptyVariant = () => ({
   size: '',
   colorName: '',
   colorHex: '#0A0A0A',
-  price: '',
+  price: '', // this field is always the actual/original price, never the discounted one
+  discountPercent: '0',
   stock: '1',
 });
+
+/** Original price when a discount is running, else just the sale price. */
+const actualPriceOf = (v) => String(v.compareAtPrice ?? v.price);
+const discountPercentOf = (v) =>
+  v.compareAtPrice && Number(v.compareAtPrice) > Number(v.price)
+    ? String(Math.round((1 - Number(v.price) / Number(v.compareAtPrice)) * 100))
+    : '0';
 
 // Thrift Shoe Condition & Transparency — exact eight categories, DEFECTS
 // uses its own two-value scale, the rest share the wear scale.
@@ -106,7 +114,12 @@ export default function AdminProductFormPage() {
         isFeatured: p.isFeatured,
         tags: p.tags,
         variants: p.variants.length
-          ? p.variants.map((v) => ({ ...v, price: String(v.price), stock: String(v.stock) }))
+          ? p.variants.map((v) => ({
+              ...v,
+              price: actualPriceOf(v),
+              discountPercent: discountPercentOf(v),
+              stock: String(v.stock),
+            }))
           : [emptyVariant()],
         conditions: {
           ...emptyConditions(),
@@ -166,14 +179,22 @@ export default function AdminProductFormPage() {
         silhouette: form.silhouette || undefined,
         variants: form.variants
           .filter((v) => v.size.trim() && v.colorName.trim())
-          .map((v) => ({
-            ...(v.id ? { id: v.id } : {}),
-            size: v.size.trim(),
-            colorName: v.colorName.trim(),
-            colorHex: v.colorHex,
-            price: Number(v.price),
-            stock: Number(v.stock),
-          })),
+          .map((v) => {
+            // v.price is always the actual/original price the admin typed —
+            // the discount, when set, derives the real selling price from it.
+            const actual = Number(v.price);
+            const discount = Number(v.discountPercent || 0);
+            const price = discount > 0 ? Math.round(actual * (1 - discount / 100)) : actual;
+            return {
+              ...(v.id ? { id: v.id } : {}),
+              size: v.size.trim(),
+              colorName: v.colorName.trim(),
+              colorHex: v.colorHex,
+              price,
+              compareAtPrice: discount > 0 ? actual : null,
+              stock: Number(v.stock),
+            };
+          }),
         conditions: CONDITION_CATEGORIES.map(({ key }) => ({
           category: key,
           status: form.conditions[key].status,
@@ -369,7 +390,7 @@ export default function AdminProductFormPage() {
           </div>
           <div className="mt-4 flex flex-col gap-3">
             {form.variants.map((v, i) => (
-              <div key={v.id || i} className="grid grid-cols-2 gap-2 rounded-[6px] border border-black/10 p-3 sm:grid-cols-6">
+              <div key={v.id || i} className="grid grid-cols-2 gap-2 rounded-[6px] border border-black/10 p-3 sm:grid-cols-7">
                 <Field label="Size">
                   <input
                     required
@@ -405,6 +426,22 @@ export default function AdminProductFormPage() {
                     onChange={(e) => setVariant(i, 'price', e.target.value)}
                     className={inputCls}
                   />
+                </Field>
+                <Field label="Discount %">
+                  <input
+                    type="number"
+                    min="0"
+                    max="90"
+                    value={v.discountPercent}
+                    onChange={(e) => setVariant(i, 'discountPercent', e.target.value)}
+                    className={inputCls}
+                    placeholder="0"
+                  />
+                  {Number(v.discountPercent) > 0 && Number(v.price) > 0 && (
+                    <span className="text-[11px] text-grey-500">
+                      → {formatPrice(Math.round(Number(v.price) * (1 - Number(v.discountPercent) / 100)))}
+                    </span>
+                  )}
                 </Field>
                 <Field label="Stock">
                   <label className={`flex h-[42px] items-center gap-2 rounded-[6px] border border-black/15 bg-white px-3 text-[13px] ${String(v.stock) === '1' ? 'text-black' : 'text-grey-500'}`}>

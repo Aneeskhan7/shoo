@@ -155,6 +155,13 @@ export default function ProductPage() {
   };
 
   const price = variant ? Number(variant.price) : product.minPrice;
+  const compareAtPrice = variant
+    ? variant.compareAtPrice
+      ? Number(variant.compareAtPrice)
+      : null
+    : product.compareAtPrice;
+  const discountPercent =
+    compareAtPrice && compareAtPrice > price ? Math.round((1 - price / compareAtPrice) * 100) : 0;
 
   return (
     <div className="bg-off-white text-black">
@@ -218,10 +225,22 @@ export default function ProductPage() {
             </span>
           </div>
 
-          <div className="mt-[20px] flex items-center gap-[16px]">
-            <p className="text-[32px] font-bold tracking-[-0.01em]">
-              {formatPrice(price, { currency: true })}
-            </p>
+          <div className="mt-[20px] flex flex-wrap items-center gap-[16px]">
+            <div className="flex items-center gap-[12px]">
+              {discountPercent > 0 && (
+                <p className="text-[20px] font-medium text-grey-500 line-through">
+                  {formatPrice(compareAtPrice, { currency: true })}
+                </p>
+              )}
+              <p className="text-[32px] font-bold tracking-[-0.01em]">
+                {formatPrice(price, { currency: true })}
+              </p>
+              {discountPercent > 0 && (
+                <span className="rounded-[4px] bg-red-500 px-[10px] py-[5px] text-[11px] font-bold text-white">
+                  -{discountPercent}%
+                </span>
+              )}
+            </div>
             <span className="rounded-full bg-green px-[12px] py-[6px] text-[10px] font-bold tracking-[0.04em] text-black">
               3D Preview Available
             </span>

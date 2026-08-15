@@ -135,7 +135,10 @@ model ProductVariant {
   size      String // "US 9"
   colorName String // "Deep Noir"
   colorHex  String // "#0A0A0A"
-  price     Decimal @db.Decimal(10, 2)
+  price     Decimal @db.Decimal(10, 2) // actual amount charged — cart/checkout always read this
+  // Original pre-discount price, shown struck through next to `price` when
+  // set and greater than it. Null = no discount running on this variant.
+  compareAtPrice Decimal? @db.Decimal(10, 2)
   stock     Int     @default(0)
   sku       String  @unique
 

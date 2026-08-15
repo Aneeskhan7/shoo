@@ -59,6 +59,16 @@ const shape = (p) => {
   // every pair under this listing is gone.
   const stockStatus = !inStock ? 'SOLD_OUT' : stocks.every((s) => s > 0) ? 'AVAILABLE' : 'LIMITED';
 
+  // Discount badge follows the same variant minPrice picks — the cheapest
+  // variant's compareAtPrice, when it's actually higher than what it charges.
+  const cheapest = p.variants.length
+    ? p.variants.reduce((a, b) => (Number(a.price) <= Number(b.price) ? a : b))
+    : null;
+  const discountPercent =
+    cheapest?.compareAtPrice && Number(cheapest.compareAtPrice) > Number(cheapest.price)
+      ? Math.round((1 - Number(cheapest.price) / Number(cheapest.compareAtPrice)) * 100)
+      : 0;
+
   return {
     ...p,
     variants,
@@ -67,6 +77,8 @@ const shape = (p) => {
     sizes: [...new Set(variants.map((v) => v.size))].sort((a, b) => sizeValue(a) - sizeValue(b)),
     minPrice: prices.length ? Math.min(...prices) : null,
     maxPrice: prices.length ? Math.max(...prices) : null,
+    compareAtPrice: discountPercent > 0 ? Number(cheapest.compareAtPrice) : null,
+    discountPercent,
     inStock,
     stockStatus,
   };

@@ -78,10 +78,22 @@ export default function ProductCard({ product, badge }) {
             count={product.reviewCount ?? undefined}
             className="mt-[8px]"
           />
-          <p className="mt-[14px] text-[18px] font-bold">
-            {formatPrice(product.minPrice)}
-            {product.maxPrice !== product.minPrice && '+'}
-          </p>
+          <div className="mt-[14px] flex flex-wrap items-center gap-[8px]">
+            {product.discountPercent > 0 && (
+              <p className="text-[13px] text-grey-500 line-through">
+                {formatPrice(product.compareAtPrice)}
+              </p>
+            )}
+            <p className="text-[18px] font-bold">
+              {formatPrice(product.minPrice)}
+              {product.maxPrice !== product.minPrice && '+'}
+            </p>
+            {product.discountPercent > 0 && (
+              <span className="rounded-[4px] bg-red-500 px-[6px] py-[2px] text-[10px] font-bold text-white">
+                -{product.discountPercent}%
+              </span>
+            )}
+          </div>
           <p className="mt-[10px] text-[11px] tracking-[0.01em] text-grey-500">Free shipping</p>
         </div>
       </Link>
