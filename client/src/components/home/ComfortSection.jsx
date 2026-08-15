@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { formatPrice } from '../ui/Price';
 
 /**
  * Section — Comfort You Can Feel (Figma 38:100). Eight 370×230 tiles in a
@@ -55,9 +54,6 @@ export default function ComfortSection() {
                     <p className="text-[13px] font-semibold tracking-[-0.005em]">{tier.name}</p>
                     <p className="text-[10px] text-grey-500">{tier.note}</p>
                   </div>
-                  <p className="ml-2 hidden text-[11px] font-medium tracking-[0.04em] sm:block">
-                    {formatPrice(tier.price)}
-                  </p>
                 </div>
               </article>
             ))}
