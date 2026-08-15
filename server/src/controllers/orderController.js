@@ -154,6 +154,13 @@ export const createOrder = asyncHandler(async (req, res) => {
       },
       include: { items: true, address: true },
     });
+  }, {
+    // Default is 5000ms. Several sequential round trips (variant/promo
+    // lookups, address upsert, per-item stock updates, order create) — the
+    // transaction-pooler's extra per-query hop can push real-world runs past
+    // 5s, which must never fail a checkout with a raw P2028.
+    timeout: 15000,
+    maxWait: 10000,
   });
 
   res.status(201).json({ order });

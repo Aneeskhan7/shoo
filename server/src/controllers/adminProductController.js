@@ -383,6 +383,13 @@ export const updateProduct = asyncHandler(async (req, res) => {
       },
       include: productInclude,
     });
+  }, {
+    // Default is 5000ms. This transaction is several sequential round trips
+    // (tag/condition wipe+recreate, variant diff+writes, final update) —
+    // the transaction-pooler's extra per-query hop pushed real-world runs
+    // past 5s intermittently (P2028 "Transaction already closed").
+    timeout: 15000,
+    maxWait: 10000,
   });
 
   res.json({ product: shape(product) });

@@ -152,7 +152,7 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
       data: { status: nextStatus },
       include: { items: true, address: true, user: { select: { firstName: true, lastName: true, email: true } } },
     });
-  });
+  }, { timeout: 15000, maxWait: 10000 }); // see orderController.js checkout transaction for why
 
   res.json({ order });
 
