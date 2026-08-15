@@ -66,6 +66,14 @@ export function useProductQuery() {
   const products = useQuery({
     queryKey: qk.products(query),
     queryFn: () => getProducts(query),
+    // Product data (price, discount, stock, images) changes from the admin
+    // panel and must be current the moment someone lands on /shop — the
+    // global 60s staleTime is fine for content that rarely moves, but stale
+    // catalogue data reads as "the save didn't work" to whoever's testing it.
+    // refetchOnWindowFocus covers the common admin workflow of editing in
+    // one tab and tabbing back to an already-open storefront tab to check.
+    staleTime: 0,
+    refetchOnWindowFocus: true,
   });
 
   const filters = useQuery({ queryKey: qk.filters(), queryFn: getFilters });
