@@ -25,12 +25,18 @@ const STATS = [
   ['48 hrs', 'Avg. Delivery Time'],
 ];
 
+// object-contain, not object-cover: these are full composed studio shots
+// (shoe + baked-in branding text near an edge, see admin-uploaded photos),
+// not plain cutouts — cropping to fill a frame whose aspect ratio doesn't
+// match the photo cuts the branding off instead of just tightening the shot.
 function DropArt({ product, className = '' }) {
   const src = getProductImage(product);
   return (
-    <div className={`relative min-h-0 overflow-hidden bg-[#141414] text-[#4A4A4A] ${className}`}>
+    <div
+      className={`relative flex min-h-0 items-center justify-center overflow-hidden bg-[#141414] text-[#4A4A4A] ${className}`}
+    >
       {src && (
-        <img src={src} alt={product.name} loading="lazy" className="h-full w-full object-cover" />
+        <img src={src} alt={product.name} loading="lazy" className="h-full w-full object-contain" />
       )}
     </div>
   );
