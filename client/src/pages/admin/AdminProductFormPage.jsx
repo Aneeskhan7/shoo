@@ -454,7 +454,10 @@ export default function AdminProductFormPage() {
                     {String(v.stock) === '1' ? 'In stock' : 'Sold'}
                   </label>
                 </Field>
-                <div className="flex items-end">
+                <div className="flex flex-col gap-1">
+                  <span aria-hidden="true" className="select-none text-[12px] font-medium text-transparent">
+                    Remove
+                  </span>
                   <button
                     type="button"
                     onClick={() => removeVariant(i)}
