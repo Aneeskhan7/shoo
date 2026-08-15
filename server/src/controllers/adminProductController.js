@@ -131,6 +131,31 @@ export const getProductMeta = asyncHandler(async (_req, res) => {
   res.json({ brands, categories, genders: ['MEN', 'WOMEN', 'KIDS', 'UNISEX'] });
 });
 
+const brandInput = z.object({ name: z.string().trim().min(1, 'Brand name is required').max(80) });
+
+/** POST /api/admin/brands — lets the admin add a brand on the fly (SHOO
+ *  resells other labels — Nike, Adidas, etc. — not just its own line) instead
+ *  of being stuck with whatever was seeded. */
+export const createBrand = asyncHandler(async (req, res) => {
+  const body = brandInput.parse(req.body);
+  const existing = await prisma.brand.findFirst({
+    where: { name: { equals: body.name, mode: 'insensitive' } },
+  });
+  if (existing) throw new ApiError(409, `"${existing.name}" already exists`);
+
+  let slug = slugify(body.name);
+  let n = 2;
+  // eslint-disable-next-line no-constant-condition
+  while (await prisma.brand.findUnique({ where: { slug }, select: { id: true } })) {
+    slug = `${slugify(body.name)}-${n++}`;
+  }
+  const brand = await prisma.brand.create({
+    data: { name: body.name, slug },
+    select: { id: true, name: true, slug: true },
+  });
+  res.status(201).json({ brand });
+});
+
 /** GET /api/admin/products — admin sees every product, active or not. */
 export const listAdminProducts = asyncHandler(async (req, res) => {
   const f = listQuery.parse(req.query);

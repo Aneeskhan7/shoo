@@ -29,6 +29,7 @@ import {
 import { getDashboard } from '../controllers/adminDashboardController.js';
 import {
   getProductMeta,
+  createBrand,
   listAdminProducts,
   getAdminProduct,
   createProduct,
@@ -102,6 +103,7 @@ router.use('/admin', requireAuth, requireAdmin);
 router.get('/admin/dashboard', getDashboard);
 
 router.get('/admin/meta', getProductMeta);
+router.post('/admin/brands', createBrand);
 router.get('/admin/products', listAdminProducts);
 router.post('/admin/products', createProduct);
 router.get('/admin/products/:id', getAdminProduct);
