@@ -87,6 +87,15 @@ const sizeValue = (size) => parseFloat(String(size).replace(/[^\d.]/g, '')) || 0
 const shape = (p) => {
   const stocks = p.variants.map((v) => v.stock);
   const totalStock = stocks.reduce((a, b) => a + b, 0);
+  // Discount badge follows the same variant minPrice picks — the cheapest
+  // variant's compareAtPrice, when it's actually higher than what it charges.
+  const cheapest = p.variants.length
+    ? p.variants.reduce((a, b) => (Number(a.price) <= Number(b.price) ? a : b))
+    : null;
+  const discountPercent =
+    cheapest?.compareAtPrice && Number(cheapest.compareAtPrice) > Number(cheapest.price)
+      ? Math.round((1 - Number(cheapest.price) / Number(cheapest.compareAtPrice)) * 100)
+      : 0;
   return {
     ...p,
     tags: p.tags.map((t) => t.tag),
@@ -95,6 +104,8 @@ const shape = (p) => {
     soldOut: stocks.length > 0 && stocks.every((s) => s === 0),
     minPrice: p.variants.length ? Math.min(...p.variants.map((v) => Number(v.price))) : null,
     maxPrice: p.variants.length ? Math.max(...p.variants.map((v) => Number(v.price))) : null,
+    compareAtPrice: discountPercent > 0 ? Number(cheapest.compareAtPrice) : null,
+    discountPercent,
   };
 };
 
@@ -183,6 +194,9 @@ const variantInput = z
       .trim()
       .regex(/^#[0-9A-Fa-f]{6}$/, 'Color must be a hex value like #0A0A0A'),
     price: z.number().nonnegative('Price cannot be negative'),
+    // Original pre-discount price. Present + greater than `price` = a
+    // discount is running (struck-through price + % badge on the storefront).
+    compareAtPrice: z.number().positive().optional().nullable(),
     // Thrift stock: each size/color is a single physical pair — 0 (sold) or
     // 1 (available), never a bulk quantity.
     stock: z.number().int().min(0).max(1, 'Each size/color is a single pair — stock is 0 or 1'),
@@ -334,7 +348,14 @@ export const updateProduct = asyncHandler(async (req, res) => {
       if (v.id && currentVariantIds.has(v.id)) {
         await tx.productVariant.update({
           where: { id: v.id },
-          data: { size: v.size, colorName: v.colorName, colorHex: v.colorHex, price: v.price, stock: v.stock },
+          data: {
+            size: v.size,
+            colorName: v.colorName,
+            colorHex: v.colorHex,
+            price: v.price,
+            compareAtPrice: v.compareAtPrice ?? null,
+            stock: v.stock,
+          },
         });
       } else {
         const { id: _id, ...rest } = v;
