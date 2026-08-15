@@ -220,19 +220,23 @@ export default function AdminProductFormPage() {
   };
 
   const onUpload = async (e) => {
-    const file = e.target.files?.[0];
+    const files = [...e.target.files];
     e.target.value = '';
-    if (!file) return;
-    setUploading(true);
+    if (!files.length) return;
     setError(null);
-    try {
-      await uploadAdminProductImage(id, file);
-      qc.invalidateQueries({ queryKey: qk.adminProduct(id) });
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setUploading(false);
+    // Sequential, not concurrent: each upload picks its gallery position/
+    // primary flag from a fresh count of existing images, so two requests
+    // racing each other could both land on the same position.
+    for (let i = 0; i < files.length; i += 1) {
+      setUploading(files.length > 1 ? `${i + 1}/${files.length}` : true);
+      try {
+        await uploadAdminProductImage(id, files[i]);
+        qc.invalidateQueries({ queryKey: qk.adminProduct(id) });
+      } catch (err) {
+        setError(files.length > 1 ? `${files[i].name}: ${err.message}` : err.message);
+      }
     }
+    setUploading(false);
   };
 
   const removeImage = async (imageId) => {
@@ -572,11 +576,20 @@ export default function AdminProductFormPage() {
                   </div>
                 ))}
                 <label className="flex h-[140px] w-[140px] cursor-pointer flex-col items-center justify-center gap-1 rounded-[6px] border border-dashed border-black/25 text-[12px] text-grey-500 hover:border-black">
-                  {uploading ? 'Uploading…' : '+ Upload'}
-                  <input type="file" accept="image/jpeg,image/png,image/webp,image/avif" className="hidden" onChange={onUpload} disabled={uploading} />
+                  {uploading ? `Uploading ${typeof uploading === 'string' ? uploading : ''}…` : '+ Upload'}
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/jpeg,image/png,image/webp,image/avif"
+                    className="hidden"
+                    onChange={onUpload}
+                    disabled={Boolean(uploading)}
+                  />
                 </label>
               </div>
-              <p className="mt-2 text-[11px] text-grey-500">JPEG, PNG, WebP or AVIF, up to 5MB.</p>
+              <p className="mt-2 text-[11px] text-grey-500">
+                JPEG, PNG, WebP or AVIF, up to 5MB each. Select multiple files to upload them all at once.
+              </p>
             </>
           )}
         </section>
