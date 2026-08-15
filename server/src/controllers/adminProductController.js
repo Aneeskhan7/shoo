@@ -473,13 +473,16 @@ export const deleteProductImage = asyncHandler(async (req, res) => {
   removeImageFile(image);
 
   // If the primary image was removed, promote the next one so the product
-  // never ends up with zero primary images while it still has photos.
+  // never ends up with zero primary images while it still has photos. Also
+  // pull it to position 0 — same reasoning as setPrimaryImage above.
   if (image.isPrimary) {
     const next = await prisma.productImage.findFirst({
       where: { productId: id, conditionCategory: null },
       orderBy: { position: 'asc' },
     });
-    if (next) await prisma.productImage.update({ where: { id: next.id }, data: { isPrimary: true } });
+    if (next) {
+      await prisma.productImage.update({ where: { id: next.id }, data: { isPrimary: true, position: 0 } });
+    }
   }
 
   res.status(204).end();
@@ -494,9 +497,21 @@ export const setPrimaryImage = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'A condition close-up cannot be the product\'s primary image');
   }
 
+  // "Primary" must also mean position 0 — every storefront surface (card,
+  // PDP hero, cart line) renders images[0] straight off `position`, not
+  // whichever row has isPrimary:true, so the two flags would silently drift
+  // apart (isPrimary flips, but the old position-0 photo keeps showing)
+  // unless this also reorders the gallery.
+  const gallery = await prisma.productImage.findMany({
+    where: { productId: id, conditionCategory: null },
+    orderBy: { position: 'asc' },
+  });
+  const rest = gallery.filter((img) => img.id !== imageId);
+
   await prisma.$transaction([
     prisma.productImage.updateMany({ where: { productId: id }, data: { isPrimary: false } }),
-    prisma.productImage.update({ where: { id: imageId }, data: { isPrimary: true } }),
+    prisma.productImage.update({ where: { id: imageId }, data: { isPrimary: true, position: 0 } }),
+    ...rest.map((img, i) => prisma.productImage.update({ where: { id: img.id }, data: { position: i + 1 } })),
   ]);
 
   res.json({ ok: true });
