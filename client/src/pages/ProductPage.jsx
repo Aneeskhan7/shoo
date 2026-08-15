@@ -38,6 +38,12 @@ export default function ProductPage() {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: qk.product(slug),
     queryFn: () => getProduct(slug),
+    // Same reasoning as the shop grid's staleTime override — a PDP must
+    // reflect a just-saved admin edit (price/discount/stock/images) on the
+    // next visit, not up to 60s later. refetchOnWindowFocus covers tabbing
+    // back to an already-open PDP after editing in another tab.
+    staleTime: 0,
+    refetchOnWindowFocus: true,
   });
   const { data: reviewData } = useQuery({
     queryKey: qk.reviews(slug),
