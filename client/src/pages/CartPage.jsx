@@ -95,6 +95,7 @@ export default function CartPage() {
                     <QtyStepper
                       value={item.quantity}
                       onChange={(q) => setQuantity(item.variantId, q)}
+                      max={1}
                     />
                   </div>
                 </div>

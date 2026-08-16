@@ -20,7 +20,7 @@ import { formatPrice } from '../components/ui/Price';
 // only (the server recomputes the real cost), but it must show the same
 // numbers or the radio list and the summary total disagree before submit.
 const SHIPPING = [
-  { id: 'STANDARD', label: 'Standard Shipping', eta: '5–7 business days', cost: 0 },
+  { id: 'STANDARD', label: 'Standard Shipping', eta: '5–7 business days', cost: 250 },
   { id: 'EXPRESS', label: 'Express Shipping', eta: '2–3 business days', cost: 350, recommended: true },
   { id: 'NEXT_DAY', label: 'Next Day Delivery', eta: '1 business day', cost: 700 },
 ];
@@ -116,6 +116,18 @@ export default function CheckoutPage() {
     );
   }
 
+  // Pakistan uses a strict 5-digit postal code; anywhere else just needs
+  // something plausible, since the address form isn't country-specific.
+  const postalCodeError = !form.postalCode
+    ? null
+    : form.country.trim().toLowerCase() === 'pakistan'
+      ? /^\d{5}$/.test(form.postalCode.trim())
+        ? null
+        : 'Pakistani postal codes are 5 digits, e.g. 44000'
+      : form.postalCode.trim().length >= 3
+        ? null
+        : 'Enter a valid postal code';
+
   const infoValid =
     form.email.includes('@') &&
     form.firstName &&
@@ -124,6 +136,7 @@ export default function CheckoutPage() {
     form.street &&
     form.city &&
     form.postalCode &&
+    !postalCodeError &&
     form.country;
 
   const submit = async () => {
@@ -238,7 +251,13 @@ export default function CheckoutPage() {
                 <Input label="Address" name="street" value={form.street} onChange={set('street')} />
                 <div className="flex flex-col gap-4 sm:flex-row">
                   <Input label="City" name="city" value={form.city} onChange={set('city')} />
-                  <Input label="Postal code" name="postalCode" value={form.postalCode} onChange={set('postalCode')} />
+                  <Input
+                    label="Postal code"
+                    name="postalCode"
+                    value={form.postalCode}
+                    onChange={set('postalCode')}
+                    error={postalCodeError}
+                  />
                   <Input label="Country" name="country" value={form.country} onChange={set('country')} />
                 </div>
               </div>
@@ -288,16 +307,20 @@ export default function CheckoutPage() {
                   </label>
                 ))}
               </div>
-              <div className="mt-8 flex items-center gap-4">
+              <div className="mt-8 flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setStep(0)}
+                  className="rounded-full border border-black/20 px-5 py-3 text-[12px] font-bold text-black transition-colors hover:border-black sm:px-8 sm:py-[18px] sm:text-[14px]"
+                >
+                  ← Information
+                </button>
                 <button
                   type="button"
                   onClick={() => setStep(2)}
                   className="rounded-full bg-black px-5 py-3 text-[12px] font-bold text-off-white sm:px-8 sm:py-[18px] sm:text-[14px]"
                 >
                   Continue to Payment →
-                </button>
-                <button type="button" onClick={() => setStep(0)} className="text-[13px] text-grey-500">
-                  ← Return to Information
                 </button>
               </div>
             </section>
@@ -334,17 +357,22 @@ export default function CheckoutPage() {
                 </p>
               )}
 
-              <button
-                type="button"
-                onClick={submit}
-                disabled={submitting}
-                className="mt-8 rounded-full bg-green px-8 py-[18px] text-[14px] font-bold text-black disabled:opacity-50"
-              >
-                {submitting ? 'Placing order…' : 'Place Order · Cash on Delivery'}
-              </button>
-              <div className="mt-4">
-                <button type="button" onClick={() => setStep(1)} className="text-[13px] text-grey-500">
-                  ← Return to Shipping
+              <div className="mt-8 flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  disabled={submitting}
+                  className="rounded-full border border-black/20 px-5 py-3 text-[12px] font-bold text-black transition-colors hover:border-black disabled:opacity-40 sm:px-8 sm:py-[18px] sm:text-[14px]"
+                >
+                  ← Shipping
+                </button>
+                <button
+                  type="button"
+                  onClick={submit}
+                  disabled={submitting}
+                  className="rounded-full bg-green px-5 py-3 text-[12px] font-bold text-black disabled:opacity-50 sm:px-8 sm:py-[18px] sm:text-[14px]"
+                >
+                  {submitting ? 'Placing order…' : 'Place Order · Cash on Delivery'}
                 </button>
               </div>
 
@@ -371,9 +399,6 @@ export default function CheckoutPage() {
                     {item.colorName} / {item.size} · Qty {item.quantity}
                   </p>
                 </div>
-                <p className="text-[14px] font-medium">
-                  {formatPrice(item.price * item.quantity)}
-                </p>
               </li>
             ))}
           </ul>

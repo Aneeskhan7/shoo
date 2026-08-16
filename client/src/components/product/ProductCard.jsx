@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import StarRating from '../ui/StarRating';
 import ProductImage from '../ui/ProductImage';
 import { formatPrice } from '../ui/Price';
+import { getProductImage } from '../../lib/productImages';
 import { useCartStore, useUIStore } from '../../store';
 
 /**
@@ -41,6 +42,7 @@ export default function ProductCard({ product, badge }) {
       productId: product.id,
       slug: product.slug,
       name: product.name,
+      image: getProductImage(product),
       size: firstInStock.size,
       colorName: firstInStock.colorName,
       colorHex: firstInStock.colorHex,

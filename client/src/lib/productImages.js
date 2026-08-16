@@ -33,7 +33,14 @@ function optimizeCloudinaryUrl(url, width = 1000) {
   return `${url.slice(0, insertAt)}w_${width},q_auto,f_auto,c_limit/${url.slice(insertAt)}`;
 }
 
-/** Resolves the image list for a product from its real ProductImage rows. */
+/**
+ * Resolves the image list for a product. Two shapes come through here:
+ *   - a full Product (`images[]` rows) — shop cards, PDP gallery, Lookbook.
+ *   - a cart/order line snapshot (`{ image: 'https://...' }`, one URL
+ *     captured at add-to-cart time) — cart drawer, cart page, checkout.
+ * Cart lines never carry the full `images[]` array, so without the `image`
+ * fallback here they'd resolve to nothing and show the placeholder icon.
+ */
 export function getProductImages(product) {
   // Thrift-condition close-ups (outsole, heel, etc.) are tagged and live in
   // the same product.images[] rows, but they're not part of the main
@@ -41,7 +48,8 @@ export function getProductImages(product) {
   const real = product?.images
     ?.filter((img) => img.url && !img.conditionCategory)
     ?.map((img) => optimizeCloudinaryUrl(img.url));
-  return real?.length ? real : FALLBACK;
+  if (real?.length) return real;
+  return product?.image ? [optimizeCloudinaryUrl(product.image)] : FALLBACK;
 }
 
 export function getProductImage(product) {

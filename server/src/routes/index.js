@@ -53,6 +53,13 @@ router.get('/products/filters', listFilters);
 router.get('/products/silhouettes', listSilhouettes);
 router.get('/products/:slug', getProduct);
 
+// Uptime ping target — no DB query, just proves the process is awake. Point
+// an external keep-alive service (UptimeRobot, cron-job.org, etc.) at this
+// every ~10 min so Render's free tier never spins the instance down; that
+// spin-down is what makes the first request after a quiet period take
+// 30-60s instead of the usual sub-second response.
+router.get('/health', (_req, res) => res.json({ ok: true }));
+
 // Search reuses the product list controller — `?q=` is already a supported filter.
 router.get('/search', listProducts);
 

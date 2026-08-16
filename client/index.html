@@ -11,6 +11,11 @@
     <meta property="og:image" content="/brand/cover.png" />
     <meta property="og:type" content="website" />
     <meta name="theme-color" content="#0A0A0A" />
+    <!-- Every product photo is served from Cloudinary — opening the
+         connection before the first <img> is discovered saves a DNS+TLS
+         round trip on pages with several product images (Drop 01, shop grid). -->
+    <link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
+    <link rel="dns-prefetch" href="https://res.cloudinary.com" />
   </head>
   <body>
     <div id="root"></div>

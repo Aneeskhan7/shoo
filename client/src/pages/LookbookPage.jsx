@@ -30,12 +30,18 @@ const STATS = [
 // same ratio so object-cover fills it with only a sliver of crop instead of
 // either cutting the headline off (mismatched cover) or leaving big empty
 // letterbox bars (contain in a mismatched box).
-function DropArt({ product, className = '' }) {
+function DropArt({ product, className = '', eager = false }) {
   const src = getProductImage(product);
   return (
     <div className={`relative min-h-0 overflow-hidden bg-[#141414] text-[#4A4A4A] ${className}`}>
       {src && (
-        <img src={src} alt={product.name} loading="lazy" className="h-full w-full object-cover" />
+        <img
+          src={src}
+          alt={product.name}
+          loading={eager ? 'eager' : 'lazy'}
+          fetchpriority={eager ? 'high' : undefined}
+          className="h-full w-full object-cover"
+        />
       )}
     </div>
   );
@@ -98,7 +104,7 @@ export default function LookbookPage() {
               height back in line with the hero's. ──────────────────── */}
           <section className="grid gap-px bg-[#0a0a0a] lg:grid-cols-[2fr_1fr]">
             <article className="flex flex-col">
-              <DropArt product={hero} className="aspect-[3/4]" />
+              <DropArt product={hero} className="aspect-[3/4]" eager />
               <div className="px-6 py-7 lg:px-5">
                 <h2 className="text-[22px] font-bold tracking-[-0.01em]">{hero.name}</h2>
                 {hero.tagline && <p className="mt-2 text-[13px] text-off-white/55">{hero.tagline}</p>}
