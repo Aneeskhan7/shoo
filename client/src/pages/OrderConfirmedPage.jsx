@@ -44,6 +44,22 @@ export default function OrderConfirmedPage() {
   }
 
   const { order } = data;
+  const STATUS_LABEL = {
+    PENDING: 'Order placed',
+    CONFIRMED: 'Confirmed',
+    PROCESSING: 'Processing',
+    SHIPPED: 'Shipped',
+    DELIVERED: 'Delivered',
+    CANCELLED: 'Cancelled',
+    REFUNDED: 'Refunded',
+  };
+  // This page doubles as the permanent order-lookup URL (order number +
+  // email) — someone can land here days later, not just right after
+  // checkout. The unconditional "Cash on Delivery, due on arrival, we'll
+  // call before dispatch" box was showing on a CANCELLED order exactly
+  // like that, which is actively wrong. Only the pre-delivery statuses
+  // still have anything "due on arrival".
+  const isPendingDelivery = ['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED'].includes(order.status);
   const eta = new Date(order.createdAt);
   eta.setDate(eta.getDate() + 3);
   const etaEnd = new Date(eta);
@@ -58,19 +74,47 @@ export default function OrderConfirmedPage() {
         </span>
 
         <h1 className="text-display-l mt-8">Thank you, {order.address.firstName}.</h1>
-        <p className="mt-4 text-[16px] text-grey-700">
-          Order <strong>#{order.orderNumber}</strong> · Estimated delivery {fmt(eta)}–{fmt(etaEnd)}
+        <p className="mt-4 flex flex-wrap items-center gap-3 text-[16px] text-grey-700">
+          <span>
+            Order <strong>#{order.orderNumber}</strong>
+            {isPendingDelivery && ` · Estimated delivery ${fmt(eta)}–${fmt(etaEnd)}`}
+          </span>
+          <span
+            className={`rounded-full px-3 py-[4px] text-[11px] font-bold tracking-[0.04em] ${
+              order.status === 'CANCELLED' || order.status === 'REFUNDED'
+                ? 'bg-[#d3d3d3] text-grey-700'
+                : order.status === 'DELIVERED'
+                  ? 'bg-black text-off-white'
+                  : 'bg-green text-black'
+            }`}
+          >
+            {STATUS_LABEL[order.status] || order.status}
+          </span>
         </p>
 
-        <div className="mt-6 inline-flex flex-col gap-1 rounded-[8px] border border-green bg-green/10 px-6 py-4">
-          <p className="text-[11px] font-medium tracking-[0.1em]">CASH ON DELIVERY</p>
-          <p className="text-[20px] font-bold">
-            {formatPrice(order.total, { currency: true })} due on arrival
-          </p>
-          <p className="text-[12px] text-grey-700">
-            We’ll call {order.guestPhone || order.address.phone} before dispatch.
-          </p>
-        </div>
+        {isPendingDelivery ? (
+          <div className="mt-6 inline-flex flex-col gap-1 rounded-[8px] border border-green bg-green/10 px-6 py-4">
+            <p className="text-[11px] font-medium tracking-[0.1em]">CASH ON DELIVERY</p>
+            <p className="text-[20px] font-bold">
+              {formatPrice(order.total, { currency: true })} due on arrival
+            </p>
+            <p className="text-[12px] text-grey-700">
+              We’ll call {order.guestPhone || order.address.phone} before dispatch.
+            </p>
+          </div>
+        ) : (
+          <div className="mt-6 inline-flex flex-col gap-1 rounded-[8px] border border-black/15 bg-white px-6 py-4">
+            <p className="text-[11px] font-medium tracking-[0.1em]">
+              {order.status === 'DELIVERED' ? 'DELIVERED' : order.status === 'REFUNDED' ? 'REFUNDED' : 'ORDER CANCELLED'}
+            </p>
+            <p className="text-[14px] text-grey-700">
+              {order.status === 'DELIVERED' &&
+                `This order was delivered. ${formatPrice(order.total, { currency: true })} was paid on arrival.`}
+              {order.status === 'REFUNDED' && `${formatPrice(order.total, { currency: true })} was refunded.`}
+              {order.status === 'CANCELLED' && 'This order will not be delivered — nothing is due.'}
+            </p>
+          </div>
+        )}
 
         <div className="mt-12 flex flex-col gap-10 lg:flex-row">
           <div className="flex-1">

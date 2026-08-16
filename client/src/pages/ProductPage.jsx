@@ -76,7 +76,20 @@ export default function ProductPage() {
   const wishlistMutation = useMutation({
     mutationFn: () =>
       wishlisted ? removeFromWishlist(product.id) : addToWishlist(product.id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: qk.wishlist() }),
+    // Patch the cache directly rather than relying on invalidateQueries'
+    // implicit refetch-of-active-observers — that request was never firing
+    // here (confirmed: POST succeeds, no follow-up GET, heart icon never
+    // flips), leaving the button showing the stale pre-click state until a
+    // full reload. Direct write can't have that failure mode.
+    onSuccess: () => {
+      qc.setQueryData(qk.wishlist(), (old) => {
+        if (!old) return old;
+        return wishlisted
+          ? { ...old, items: old.items.filter((i) => i.product.id !== product.id) }
+          : { ...old, items: [...old.items, { id: `local-${product.id}`, product }] };
+      });
+      qc.invalidateQueries({ queryKey: qk.wishlist() });
+    },
   });
 
   const toggleWishlist = () => {

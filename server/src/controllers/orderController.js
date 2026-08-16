@@ -3,6 +3,7 @@ import prisma from '../config/prisma.js';
 import { ApiError, asyncHandler } from '../middleware/errorHandler.js';
 import { priceCart, generateOrderNumber } from '../lib/pricing.js';
 import { sendOrderConfirmationEmail } from '../lib/orderEmails.js';
+import { ORDER_ITEM_INCLUDE, shapeOrder } from '../lib/orderShape.js';
 
 const lineSchema = z.object({
   variantId: z.string().uuid(),
@@ -152,7 +153,7 @@ export const createOrder = asyncHandler(async (req, res) => {
           })),
         },
       },
-      include: { items: true, address: true },
+      include: { items: { include: ORDER_ITEM_INCLUDE }, address: true },
     });
   }, {
     // Default is 5000ms. Several sequential round trips (variant/promo
@@ -163,7 +164,7 @@ export const createOrder = asyncHandler(async (req, res) => {
     maxWait: 10000,
   });
 
-  res.status(201).json({ order });
+  res.status(201).json({ order: shapeOrder(order) });
 
   // Fire-and-forget, after the response is already sent: the order is placed
   // either way, and a Resend hiccup must never fail checkout. Guarded by
@@ -187,7 +188,7 @@ export const createOrder = asyncHandler(async (req, res) => {
 export const getOrder = asyncHandler(async (req, res) => {
   const order = await prisma.order.findUnique({
     where: { orderNumber: req.params.orderNumber },
-    include: { items: true, address: true },
+    include: { items: { include: ORDER_ITEM_INCLUDE }, address: true },
   });
   if (!order) throw new ApiError(404, 'Order not found');
 
@@ -201,5 +202,5 @@ export const getOrder = asyncHandler(async (req, res) => {
     throw new ApiError(403, 'You do not have access to this order');
   }
 
-  res.json({ order });
+  res.json({ order: shapeOrder(order) });
 });

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import prisma from '../config/prisma.js';
 import { ApiError, asyncHandler } from '../middleware/errorHandler.js';
+import { ORDER_ITEM_INCLUDE, shapeOrder } from '../lib/orderShape.js';
 
 /**
  * Member-only routes. Everything here sits behind requireAuth — nothing in the
@@ -168,16 +169,16 @@ export const listMyOrders = asyncHandler(async (req, res) => {
   const orders = await prisma.order.findMany({
     where: { userId: req.user.id },
     orderBy: { createdAt: 'desc' },
-    include: { items: true },
+    include: { items: { include: ORDER_ITEM_INCLUDE } },
   });
-  res.json({ orders });
+  res.json({ orders: orders.map(shapeOrder) });
 });
 
 export const getMyOrder = asyncHandler(async (req, res) => {
   const order = await prisma.order.findUnique({
     where: { orderNumber: req.params.orderNumber },
-    include: { items: true, address: true },
+    include: { items: { include: ORDER_ITEM_INCLUDE }, address: true },
   });
   if (!order || order.userId !== req.user.id) throw new ApiError(404, 'Order not found');
-  res.json({ order });
+  res.json({ order: shapeOrder(order) });
 });
