@@ -192,7 +192,13 @@ export default function CheckoutPage() {
         ))}
       </div>
 
-      <div className="flex flex-col lg:flex-row">
+      {/* max-w + mx-auto (not a bare flex-1 row): on a wide screen, the
+          580px-fixed summary rail left the flex-1 form column free to grow
+          to fill everything remaining, but its own content tops out at
+          max-w-[700px] — the unused width sat as dead space between the
+          two columns instead of at the page edges. Capping and centering
+          the whole row moves that slack to the outer margins instead. */}
+      <div className="flex flex-col lg:mx-auto lg:max-w-[1440px] lg:flex-row">
         {/* Form column */}
         <div className="flex-1 px-6 py-12 lg:px-20">
           {step === 0 && (
