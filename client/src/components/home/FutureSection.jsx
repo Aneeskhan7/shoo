@@ -112,7 +112,15 @@ export default function FutureSection() {
             Interact with every stitch, seam, and sole.
           </p>
 
-          <div className="mt-[38px] flex flex-wrap gap-3" role="group" aria-label="Filter by silhouette">
+          {/* flex-nowrap + overflow-x-auto (not flex-wrap): 5 pills don't
+              fit one mobile-width row, and wrapping dropped "Trail" onto
+              its own line below. Scrolling keeps it a single row; desktop
+              never needs to scroll since the 46% column is wide enough. */}
+          <div
+            className="mt-[38px] flex flex-nowrap gap-3 overflow-x-auto"
+            role="group"
+            aria-label="Filter by silhouette"
+          >
             {FILTERS.map((f) => {
               const active = f === filter;
               return (
@@ -121,7 +129,7 @@ export default function FutureSection() {
                   type="button"
                   aria-pressed={active}
                   onClick={() => setFilter(f)}
-                  className={`h-[31px] rounded-full px-[14px] text-[11px] font-medium transition-colors ${
+                  className={`h-[31px] shrink-0 whitespace-nowrap rounded-full px-[14px] text-[11px] font-medium transition-colors ${
                     active
                       ? 'bg-green text-black'
                       : 'border border-off-white/20 text-off-white/70 hover:border-off-white/50'
@@ -151,18 +159,15 @@ export default function FutureSection() {
           </ul>
         </div>
 
-        {/* -mx-6 bleeds the grid edge-to-edge on mobile (canceling the
-            section's own px-6) now that the FEATURES list next to it is
-            gone below lg — noticeably bigger tiles, still locked to 3
-            columns per the design intent above. lg: resets the bleed since
-            desktop's own px-16 layout is unaffected either way. */}
         {/* h-[600px] (not min-h) — flex-1's flex-basis:0% was collapsing the
             container to whatever the canvas's own first-paint size happened
             to be (~150px) since the mobile flex column has no bounded
             parent height for flex-1 to grow into; an explicit height sidesteps
             that resolution order entirely. flex-none keeps mobile from
-            fighting it; lg: restores the original flex-1 sizing desktop relies on. */}
-        <div className="-mx-6 h-[600px] flex-none lg:mx-0 lg:h-auto lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:pb-24">
+            fighting it; lg: restores the original flex-1 sizing desktop relies on.
+            No -mx-6 bleed here (was edge-to-edge) — the grid keeps the
+            section's own px-6 so tiles sit clear of both screen edges. */}
+        <div className="h-[600px] flex-none lg:h-auto lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:pb-24">
           {reduced || !visible ? (
             <StaticGrid items={filtered} />
           ) : (
