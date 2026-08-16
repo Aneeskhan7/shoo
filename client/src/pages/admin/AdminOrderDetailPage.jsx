@@ -158,10 +158,6 @@ export default function AdminOrderDetailPage() {
             <dt className="text-grey-500">Shipping</dt>
             <dd>{Number(order.shippingCost) === 0 ? 'Free' : formatPrice(order.shippingCost)}</dd>
           </div>
-          <div className="flex justify-between">
-            <dt className="text-grey-500">Tax</dt>
-            <dd>{formatPrice(order.tax)}</dd>
-          </div>
           <div className="flex justify-between border-t border-black/10 pt-2 text-[15px] font-bold">
             <dt>Total</dt>
             <dd>{formatPrice(order.total)}</dd>

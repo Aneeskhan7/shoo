@@ -11,7 +11,7 @@ import { formatPrice } from '../components/ui/Price';
 /**
  * Cart — Figma 39:146 (1440×984).
  *   left column: white item cards, 86px thumb, green rail on the first row
- *   right column: #EDEDED summary panel, Subtotal / Shipping / Taxes / Total
+ *   right column: #EDEDED summary panel, Subtotal / Shipping / Total (no tax)
  *   Totals come from POST /cart/validate — never computed in the browser.
  */
 export default function CartPage() {
@@ -172,10 +172,6 @@ export default function CartPage() {
               <dd className="font-medium">
                 {totals?.shippingCost ? formatPrice(totals.shippingCost) : 'Free'}
               </dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-grey-700">Taxes (est.)</dt>
-              <dd className="font-medium">{formatPrice(totals?.tax)}</dd>
             </div>
           </dl>
 

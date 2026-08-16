@@ -430,10 +430,6 @@ export default function CheckoutPage() {
                     : 'Free'}
               </dd>
             </div>
-            <div className="flex justify-between">
-              <dt className="text-grey-700">Taxes</dt>
-              <dd>{formatPrice(totals?.tax)}</dd>
-            </div>
           </dl>
 
           <div className="mt-6 flex items-baseline justify-between border-t border-black/10 pt-6">
