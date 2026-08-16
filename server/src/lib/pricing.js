@@ -6,8 +6,7 @@ import { ApiError } from '../middleware/errorHandler.js';
  * Product prices are dummy-for-now too; both need real business sign-off
  * before launch.
  *
- * The tax rate is unchanged from its original (Figma-derived, non-Pakistan)
- * 8% pending a decision on whether/how GST applies — see PKR migration notes.
+ * No tax is charged — 0 pending a decision on whether/how GST applies.
  */
 export const SHIPPING_METHODS = {
   STANDARD: { id: 'STANDARD', label: 'Standard Shipping', eta: '5–7 business days', cost: 250 },
@@ -15,7 +14,7 @@ export const SHIPPING_METHODS = {
   NEXT_DAY: { id: 'NEXT_DAY', label: 'Next Day Delivery', eta: '1 business day', cost: 700 },
 };
 
-export const TAX_RATE = 0.08;
+export const TAX_RATE = 0;
 
 const formatPKR = (n) => `PKR ${Math.round(Number(n)).toLocaleString('en-US')}`;
 

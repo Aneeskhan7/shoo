@@ -156,10 +156,6 @@ export default function OrderConfirmedPage() {
                   {Number(order.shippingCost) === 0 ? 'Free' : formatPrice(order.shippingCost)}
                 </dd>
               </div>
-              <div className="flex justify-between">
-                <dt className="text-grey-700">Taxes</dt>
-                <dd>{formatPrice(order.tax)}</dd>
-              </div>
             </dl>
             <div className="mt-5 flex items-baseline justify-between border-t border-black/15 pt-5">
               <span className="text-[16px] font-bold">Total</span>
