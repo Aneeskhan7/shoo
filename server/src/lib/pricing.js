@@ -10,7 +10,7 @@ import { ApiError } from '../middleware/errorHandler.js';
  * 8% pending a decision on whether/how GST applies — see PKR migration notes.
  */
 export const SHIPPING_METHODS = {
-  STANDARD: { id: 'STANDARD', label: 'Standard Shipping', eta: '5–7 business days', cost: 0 },
+  STANDARD: { id: 'STANDARD', label: 'Standard Shipping', eta: '5–7 business days', cost: 250 },
   EXPRESS: { id: 'EXPRESS', label: 'Express Shipping', eta: '2–3 business days', cost: 350 },
   NEXT_DAY: { id: 'NEXT_DAY', label: 'Next Day Delivery', eta: '1 business day', cost: 700 },
 };

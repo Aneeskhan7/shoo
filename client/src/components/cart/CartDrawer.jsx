@@ -87,6 +87,7 @@ export default function CartDrawer() {
                       <QtyStepper
                         value={item.quantity}
                         onChange={(q) => setQuantity(item.variantId, q)}
+                        max={1}
                       />
                       <span className="text-[14px] font-bold">
                         {formatPrice(item.price * item.quantity)}

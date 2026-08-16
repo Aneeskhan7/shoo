@@ -152,6 +152,7 @@ export default function ProductPage() {
       productId: product.id,
       slug: product.slug,
       name: product.name,
+      image: getProductImages(product)[0],
       size: variant.size,
       colorName: variant.colorName,
       colorHex: variant.colorHex,
@@ -231,23 +232,23 @@ export default function ProductPage() {
             </span>
           </div>
 
-          <div className="mt-[20px] flex flex-wrap items-center gap-[16px]">
-            <div className="flex items-center gap-[12px]">
+          <div className="mt-[20px] flex flex-wrap items-center gap-[10px] sm:gap-[16px]">
+            <div className="flex items-center gap-[8px] sm:gap-[12px]">
               {discountPercent > 0 && (
-                <p className="text-[20px] font-medium text-grey-500 line-through">
+                <p className="text-[14px] font-medium text-grey-500 line-through sm:text-[20px]">
                   {formatPrice(compareAtPrice, { currency: true })}
                 </p>
               )}
-              <p className="text-[32px] font-bold tracking-[-0.01em]">
+              <p className="text-[22px] font-bold tracking-[-0.01em] sm:text-[32px]">
                 {formatPrice(price, { currency: true })}
               </p>
               {discountPercent > 0 && (
-                <span className="rounded-[4px] bg-red-500 px-[10px] py-[5px] text-[11px] font-bold text-white">
+                <span className="rounded-[4px] bg-red-500 px-[7px] py-[3px] text-[9px] font-bold text-white sm:px-[10px] sm:py-[5px] sm:text-[11px]">
                   -{discountPercent}%
                 </span>
               )}
             </div>
-            <span className="rounded-full bg-green px-[12px] py-[6px] text-[10px] font-bold tracking-[0.04em] text-black">
+            <span className="rounded-full bg-green px-[10px] py-[5px] text-[9px] font-bold tracking-[0.04em] text-black sm:px-[12px] sm:py-[6px] sm:text-[10px]">
               3D Preview Available
             </span>
           </div>
