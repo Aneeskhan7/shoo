@@ -10,7 +10,14 @@ export default function WishlistPage() {
 
   const remove = useMutation({
     mutationFn: removeFromWishlist,
-    onSuccess: () => qc.invalidateQueries({ queryKey: qk.wishlist() }),
+    // Direct cache write, not just invalidate — see ProductPage.jsx's
+    // wishlist mutation for why (invalidateQueries' refetch wasn't firing).
+    onSuccess: (_data, productId) => {
+      qc.setQueryData(qk.wishlist(), (old) =>
+        old ? { ...old, items: old.items.filter((i) => i.product.id !== productId) } : old,
+      );
+      qc.invalidateQueries({ queryKey: qk.wishlist() });
+    },
   });
 
   const items = data?.items ?? [];

@@ -30,7 +30,14 @@ function optimizeCloudinaryUrl(url, width = 1000) {
   const i = url.indexOf(CLOUDINARY_UPLOAD_MARKER);
   if (i === -1) return url; // not a Cloudinary URL — leave it alone
   const insertAt = i + CLOUDINARY_UPLOAD_MARKER.length;
-  return `${url.slice(0, insertAt)}w_${width},q_auto,f_auto,c_limit/${url.slice(insertAt)}`;
+  const rest = url.slice(insertAt);
+  // Idempotency guard: a cart/order line's `image` is captured via
+  // getProductImage(), which already ran this — that already-optimized URL
+  // then flows back through getProductImages() a second time (cart drawer,
+  // checkout) and would otherwise get a second w_/q_/f_ segment stacked on
+  // (confirmed live: .../upload/w_1000,.../w_1000,.../v.../file.jpg).
+  if (rest.startsWith('w_')) return url;
+  return `${url.slice(0, insertAt)}w_${width},q_auto,f_auto,c_limit/${rest}`;
 }
 
 /**

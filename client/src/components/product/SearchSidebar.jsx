@@ -75,7 +75,15 @@ export default function SearchSidebar({ params, setParam, setParamsMulti, filter
 
   return (
     <aside className={`flex flex-col ${className}`}>
-      <Section title="Category">
+      {/* This filters Product.silhouette (Runners/High-Top/Lifestyle/
+          Trainers, free text) — a different field from the `category`
+          query param (CollectionSection's home-page tiles, Category.slug:
+          runners/lifestyle). Labeling this "Category" collided with that:
+          landing via a category= link left every checkbox here reading
+          (0), since the current result's silhouette rarely matches any of
+          these four values — looked broken, was really two unrelated
+          filters sharing a name. */}
+      <Section title="Silhouette">
         {CATEGORY_OPTIONS.map(([label, value]) => (
           <FacetCheckbox
             key={value}
