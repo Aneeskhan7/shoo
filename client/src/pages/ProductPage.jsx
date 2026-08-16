@@ -176,7 +176,7 @@ export default function ProductPage() {
       <section className="flex flex-col pt-[120px] lg:flex-row lg:justify-center lg:pt-[128px]">
         <div className="flex w-full flex-col lg:w-[760px]">
           <div className="relative flex aspect-[760/820] w-full items-center justify-center bg-[#EDEDED] text-[#CCCCC7] lg:aspect-auto lg:h-[820px]">
-            <ProductImage product={product} index={activeImage} eager />
+            <ProductImage product={product} index={activeImage} eager fit="contain" />
           </div>
 
           {images.length > 1 && (
