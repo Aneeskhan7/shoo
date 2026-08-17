@@ -16,7 +16,6 @@ const AboutPage = lazy(() => import('./pages/AboutPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
 const SizeGuidePage = lazy(() => import('./pages/SizeGuidePage'));
 const CareersPage = lazy(() => import('./pages/CareersPage'));
-const PressPage = lazy(() => import('./pages/PressPage'));
 const FaqPage = lazy(() => import('./pages/FaqPage'));
 const JournalPage = lazy(() => import('./pages/JournalPage'));
 const JournalPostPage = lazy(() => import('./pages/JournalPostPage'));
@@ -76,7 +75,6 @@ export default function App() {
               <Route path="contact" element={<ContactPage />} />
               <Route path="size-guide" element={<SizeGuidePage />} />
               <Route path="careers" element={<CareersPage />} />
-              <Route path="press" element={<PressPage />} />
               <Route path="faq" element={<FaqPage />} />
               <Route path="journal" element={<JournalPage />} />
               <Route path="journal/:slug" element={<JournalPostPage />} />

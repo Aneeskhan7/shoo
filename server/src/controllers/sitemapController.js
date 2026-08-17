@@ -16,7 +16,6 @@ const STATIC_ROUTES = [
   { path: '/size-guide', changefreq: 'monthly', priority: '0.5' },
   { path: '/contact', changefreq: 'yearly', priority: '0.3' },
   { path: '/careers', changefreq: 'monthly', priority: '0.3' },
-  { path: '/press', changefreq: 'monthly', priority: '0.3' },
   { path: '/faq', changefreq: 'monthly', priority: '0.4' },
   { path: '/journal', changefreq: 'weekly', priority: '0.6' },
 ];
