@@ -1,6 +1,7 @@
 {
   "rewrites": [
     { "source": "/sitemap.xml", "destination": "https://shoo-1.onrender.com/api/sitemap.xml" },
+    { "source": "/google05dfedac32087a04.html", "destination": "/google05dfedac32087a04.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
