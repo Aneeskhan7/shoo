@@ -3,5 +3,13 @@
     { "source": "/sitemap.xml", "destination": "https://shoo-1.onrender.com/api/sitemap.xml" },
     { "source": "/google05dfedac32087a04.html", "destination": "/google05dfedac32087a04.html" },
     { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/((?!.*\\.[a-zA-Z0-9]+$).*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate, s-maxage=0" }
+      ]
+    }
   ]
 }
