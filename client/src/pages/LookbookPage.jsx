@@ -38,7 +38,7 @@ function DropArt({ product, className = '', eager = false }) {
       {src && (
         <img
           src={src}
-          alt={product.name}
+          alt={product.colors?.[0]?.name ? `${product.name} — ${product.colors[0].name}` : product.name}
           loading={eager ? 'eager' : 'lazy'}
           fetchpriority={eager ? 'high' : undefined}
           className="h-full w-full object-cover"

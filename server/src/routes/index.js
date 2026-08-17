@@ -41,10 +41,14 @@ import {
 } from '../controllers/adminProductController.js';
 import { listAdminOrders, getAdminOrder, updateOrderStatus } from '../controllers/adminOrderController.js';
 import { uploadProductImage as uploadMiddleware } from '../lib/upload.js';
+import { sitemap } from '../controllers/sitemapController.js';
 
 const router = Router();
 
 router.get('/health', (_req, res) => res.json({ ok: true }));
+
+// Public, no auth — read by search-engine crawlers.
+router.get('/sitemap.xml', sitemap);
 
 // Products
 router.get('/products', listProducts);

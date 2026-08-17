@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+# Transactional + authenticated surfaces — no SEO value, no external inbound links
+Disallow: /admin
+Disallow: /account
+Disallow: /cart
+Disallow: /checkout
+Disallow: /order/
+Disallow: /sign-in
+Disallow: /join
+
+Sitemap: https://www.shoo.business/sitemap.xml
