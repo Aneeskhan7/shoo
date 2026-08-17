@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import StarRating from '../ui/StarRating';
 import ProductImage from '../ui/ProductImage';
 import { formatPrice } from '../ui/Price';
 import { getProductImage } from '../../lib/productImages';
+import { qk } from '../../lib/api';
 import { useCartStore, useUIStore } from '../../store';
 
 /**
@@ -13,9 +15,11 @@ import { useCartStore, useUIStore } from '../../store';
  *   Quick View 176×36 r999 #f2f2f2 · Add to Cart 240×40 r6 #0a0a0a
  * The card is a light surface on every frame it appears in.
  */
-export default function ProductCard({ product, badge }) {
+export default function ProductCard({ product, badge, eager = false }) {
   const add = useCartStore((s) => s.add);
   const setCartOpen = useUIStore((s) => s.setCartOpen);
+  const setQuickViewSlug = useUIStore((s) => s.setQuickViewSlug);
+  const qc = useQueryClient();
 
   const primaryColor = product.colors?.[0];
   const inStockVariants = product.variants?.filter((v) => v.stock > 0) ?? [];
@@ -51,11 +55,29 @@ export default function ProductCard({ product, badge }) {
     setCartOpen(true);
   };
 
+  // Warms the Quick View modal so the common hover-then-click flow opens
+  // instantly instead of waiting on a fresh GET /products/:slug. Never
+  // unconditionally overwrites (`old ??`) — a second hover, or an already-
+  // resolved fresher cache entry, must never be clobbered. conditionItems
+  // defaults to [] because a "View full details" click hands this same
+  // cache entry to the real PDP, whose ConditionReport reads
+  // product.conditionItems.find(...) with no optional chaining.
+  const prefetchQuickView = () => {
+    qc.setQueryData(qk.product(product.slug), (old) =>
+      old ?? { product: { ...product, conditionItems: [] }, related: [] },
+    );
+  };
+
   return (
-    <article className="group relative flex w-full flex-col overflow-hidden rounded-[8px] border-[0.5px] border-[#d3d3d3] bg-white text-black">
+    <article
+      onMouseEnter={prefetchQuickView}
+      onFocus={prefetchQuickView}
+      onTouchStart={prefetchQuickView}
+      className="group relative flex w-full flex-col overflow-hidden rounded-[8px] border-[0.5px] border-[#d3d3d3] bg-white text-black"
+    >
       <Link to={`/products/${product.slug}`} className="flex flex-1 flex-col">
         <div className="relative aspect-[268/360] w-full overflow-hidden rounded-[8px] bg-[#f2f2f2] text-[#ccccc7]">
-          <ProductImage product={product} colorName={primaryColor?.name} />
+          <ProductImage product={product} colorName={primaryColor?.name} width={600} eager={eager} />
           {badge && (
             <span className="absolute left-3 top-3 rounded-[4px] bg-green px-[10px] py-[5px] text-[9px] font-bold tracking-[0.06em] text-black">
               {badge}
@@ -101,12 +123,13 @@ export default function ProductCard({ product, badge }) {
       </Link>
 
       <div className="mt-auto flex flex-col items-center gap-[10px] px-[14px] pb-[14px]">
-        <Link
-          to={`/products/${product.slug}`}
+        <button
+          type="button"
+          onClick={() => setQuickViewSlug(product.slug)}
           className="flex h-[36px] w-[130px] items-center justify-center rounded-full bg-[#f2f2f2] text-[12px] font-medium tracking-[0.01em] text-grey-700 transition-colors hover:bg-[#e8e8e8] md:w-[176px]"
         >
           Quick View
-        </Link>
+        </button>
         {needsSizeChoice ? (
           <Link
             to={`/products/${product.slug}`}

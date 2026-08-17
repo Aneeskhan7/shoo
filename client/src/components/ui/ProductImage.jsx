@@ -27,9 +27,10 @@ export default function ProductImage({
   placeholderLabel,
   alt,
   colorName,
+  width,
 }) {
   const [failed, setFailed] = useState(false);
-  const entries = getProductImageEntries(colorName ? { ...product, colorName } : product);
+  const entries = getProductImageEntries(colorName ? { ...product, colorName } : product, { width });
   const entry = entries[index] ?? entries[0];
 
   if (!entry || failed) {
@@ -41,6 +42,7 @@ export default function ProductImage({
       src={entry.url}
       alt={alt || entry.alt}
       loading={eager ? 'eager' : 'lazy'}
+      fetchpriority={eager ? 'high' : undefined}
       decoding="async"
       onError={() => setFailed(true)}
       className={`h-full w-full ${fit === 'contain' ? 'object-contain' : 'object-cover'} ${className}`}

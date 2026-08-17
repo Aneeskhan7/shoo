@@ -47,10 +47,12 @@ export default function ProductPage() {
     staleTime: 0,
     refetchOnWindowFocus: true,
   });
+  // Only needs the route's own slug — no reason to wait on the product
+  // query resolving first. reviewData is already read defensively
+  // everywhere below, so an earlier-arriving response is already handled.
   const { data: reviewData } = useQuery({
     queryKey: qk.reviews(slug),
     queryFn: () => getReviews(slug),
-    enabled: Boolean(data),
   });
 
   const product = data?.product;
@@ -103,7 +105,9 @@ export default function ProductPage() {
   };
 
   // Recently Viewed — client-only, persisted slug list; reuses the existing
-  // product list endpoint to render, no new backend surface.
+  // product list endpoint (filtered to just these ≤4 slugs) to render, no
+  // new backend surface. Was fetching a full 48-product page just to find
+  // ≤4 of them by slug — the slugs filter asks for exactly what's needed.
   const recentSlugs = useRecentlyViewedStore((s) => s.slugs);
   const addRecentlyViewed = useRecentlyViewedStore((s) => s.add);
   useEffect(() => {
@@ -115,8 +119,8 @@ export default function ProductPage() {
     [recentSlugs, product?.slug],
   );
   const { data: catalogData } = useQuery({
-    queryKey: qk.products({ limit: 48 }),
-    queryFn: () => getProducts({ limit: 48 }),
+    queryKey: qk.products({ slugs: otherRecentSlugs.join(',') }),
+    queryFn: () => getProducts({ slugs: otherRecentSlugs.join(','), limit: otherRecentSlugs.length }),
     enabled: otherRecentSlugs.length > 0,
     staleTime: 60_000,
   });

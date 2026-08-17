@@ -59,8 +59,11 @@ export default function ProductGrid({
 
   return (
     <div className="grid grid-cols-2 gap-5 lg:grid-cols-4">
-      {products.map((p) => (
-        <ProductCard key={p.id} product={p} badge={badgeFor?.(p)} />
+      {products.map((p, i) => (
+        // First 4 = the entire first row at both the mobile 2-col and
+        // desktop 4-col breakpoints — those are already on screen at load,
+        // so they shouldn't wait behind lazy-loading like the rest of the grid.
+        <ProductCard key={p.id} product={p} badge={badgeFor?.(p)} eager={i < 4} />
       ))}
     </div>
   );
