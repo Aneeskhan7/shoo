@@ -18,6 +18,7 @@ const STATIC_ROUTES = [
   { path: '/careers', changefreq: 'monthly', priority: '0.3' },
   { path: '/press', changefreq: 'monthly', priority: '0.3' },
   { path: '/faq', changefreq: 'monthly', priority: '0.4' },
+  { path: '/journal', changefreq: 'weekly', priority: '0.6' },
 ];
 
 // Mirrors the slugs in client/src/lib/collections.js's COLLECTIONS map —
@@ -42,13 +43,18 @@ const escapeXml = (s) =>
  *  static file, since the catalogue changes constantly via admin and a
  *  static file would go stale the moment a product is added/deactivated. */
 export const sitemap = asyncHandler(async (_req, res) => {
-  const [products, newestProduct] = await Promise.all([
+  const [products, newestProduct, posts] = await Promise.all([
     prisma.product.findMany({
       where: { isActive: true },
       select: { slug: true, updatedAt: true },
       orderBy: { updatedAt: 'desc' },
     }),
     prisma.product.findFirst({ where: { isActive: true }, orderBy: { updatedAt: 'desc' }, select: { updatedAt: true } }),
+    prisma.blogPost.findMany({
+      where: { isPublished: true },
+      select: { slug: true, updatedAt: true },
+      orderBy: { updatedAt: 'desc' },
+    }),
   ]);
 
   const urls = [
@@ -72,6 +78,12 @@ export const sitemap = asyncHandler(async (_req, res) => {
       lastmod: p.updatedAt,
       changefreq: 'weekly',
       priority: '0.7',
+    })),
+    ...posts.map((p) => ({
+      loc: `${ORIGIN}/journal/${p.slug}`,
+      lastmod: p.updatedAt,
+      changefreq: 'monthly',
+      priority: '0.5',
     })),
   ];
 

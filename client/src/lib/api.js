@@ -26,6 +26,9 @@ export const getSilhouettes = () => api.get('/products/silhouettes').then((r) =>
 export const getReviews = (slug) => api.get(`/products/${slug}/reviews`).then((r) => r.data);
 export const searchProducts = (params) => api.get('/search', { params }).then((r) => r.data);
 
+export const getPosts = (params) => api.get('/blog', { params }).then((r) => r.data);
+export const getPost = (slug) => api.get(`/blog/${slug}`).then((r) => r.data);
+
 export const submitContact = (payload) => api.post('/contact', payload).then((r) => r.data);
 export const subscribeNewsletter = (payload) =>
   api.post('/newsletter', payload).then((r) => r.data);
@@ -95,6 +98,19 @@ export const getAdminOrder = (id) => api.get(`/admin/orders/${id}`).then((r) => 
 export const updateAdminOrderStatus = (id, status) =>
   api.patch(`/admin/orders/${id}/status`, { status }).then((r) => r.data);
 
+export const getAdminPosts = () => api.get('/admin/blog').then((r) => r.data);
+export const getAdminPost = (id) => api.get(`/admin/blog/${id}`).then((r) => r.data);
+export const createAdminPost = (payload) => api.post('/admin/blog', payload).then((r) => r.data);
+export const updateAdminPost = (id, payload) => api.put(`/admin/blog/${id}`, payload).then((r) => r.data);
+export const deleteAdminPost = (id) => api.delete(`/admin/blog/${id}`).then((r) => r.data);
+export const uploadAdminPostCover = (id, file) => {
+  const form = new FormData();
+  form.append('image', file);
+  return api
+    .post(`/admin/blog/${id}/cover`, form, { headers: { 'Content-Type': 'multipart/form-data' } })
+    .then((r) => r.data);
+};
+
 /** Query keys live in one place so cart mutations invalidate the right things. */
 export const qk = {
   me: () => ['me'],
@@ -117,4 +133,8 @@ export const qk = {
   adminProduct: (id) => ['admin', 'product', id],
   adminOrders: (params) => ['admin', 'orders', params],
   adminOrder: (id) => ['admin', 'order', id],
+  posts: (params) => ['posts', params],
+  post: (slug) => ['post', slug],
+  adminPosts: () => ['admin', 'posts'],
+  adminPost: (id) => ['admin', 'post', id],
 };

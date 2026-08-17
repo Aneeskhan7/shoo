@@ -23,6 +23,7 @@ const COLUMNS = [
       ['About', '/about'],
       ['Careers', '/careers'],
       ['Press', '/press'],
+      ['Journal', '/journal'],
     ],
   },
   {

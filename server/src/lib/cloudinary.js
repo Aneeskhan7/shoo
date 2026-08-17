@@ -40,3 +40,12 @@ export function uploadProductImageToCloudinary(buffer, mimetype, { slug }) {
 export function deleteCloudinaryImage(publicId) {
   return client().uploader.destroy(publicId);
 }
+
+/** Same pipeline as product images, own folder — shoo/blog/<slug>/<asset>. */
+export function uploadBlogCoverToCloudinary(buffer, mimetype, { slug }) {
+  const dataUri = `data:${mimetype};base64,${buffer.toString('base64')}`;
+  return client().uploader.upload(dataUri, {
+    folder: `shoo/blog/${slug}`,
+    resource_type: 'image',
+  });
+}

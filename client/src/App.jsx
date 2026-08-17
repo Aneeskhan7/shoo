@@ -18,6 +18,8 @@ const SizeGuidePage = lazy(() => import('./pages/SizeGuidePage'));
 const CareersPage = lazy(() => import('./pages/CareersPage'));
 const PressPage = lazy(() => import('./pages/PressPage'));
 const FaqPage = lazy(() => import('./pages/FaqPage'));
+const JournalPage = lazy(() => import('./pages/JournalPage'));
+const JournalPostPage = lazy(() => import('./pages/JournalPostPage'));
 const LookbookPage = lazy(() => import('./pages/LookbookPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
@@ -39,6 +41,8 @@ const AdminProductsPage = lazy(() => import('./pages/admin/AdminProductsPage'));
 const AdminProductFormPage = lazy(() => import('./pages/admin/AdminProductFormPage'));
 const AdminOrdersPage = lazy(() => import('./pages/admin/AdminOrdersPage'));
 const AdminOrderDetailPage = lazy(() => import('./pages/admin/AdminOrderDetailPage'));
+const AdminBlogListPage = lazy(() => import('./pages/admin/AdminBlogListPage'));
+const AdminBlogFormPage = lazy(() => import('./pages/admin/AdminBlogFormPage'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -74,6 +78,8 @@ export default function App() {
               <Route path="careers" element={<CareersPage />} />
               <Route path="press" element={<PressPage />} />
               <Route path="faq" element={<FaqPage />} />
+              <Route path="journal" element={<JournalPage />} />
+              <Route path="journal/:slug" element={<JournalPostPage />} />
               <Route path="lookbook" element={<LookbookPage />} />
 
               {/* Optional membership */}
@@ -103,6 +109,9 @@ export default function App() {
               <Route path="products/:id/edit" element={<AdminProductFormPage />} />
               <Route path="orders" element={<AdminOrdersPage />} />
               <Route path="orders/:id" element={<AdminOrderDetailPage />} />
+              <Route path="blog" element={<AdminBlogListPage />} />
+              <Route path="blog/new" element={<AdminBlogFormPage />} />
+              <Route path="blog/:id/edit" element={<AdminBlogFormPage />} />
             </Route>
           </Routes>
         </Suspense>
