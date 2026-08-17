@@ -16,6 +16,11 @@
          round trip on pages with several product images (Drop 01, shop grid). -->
     <link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
     <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+    <!-- Home page's LCP element (measured live: LCP 5.19s vs. FCP 1.22s).
+         Without this the browser only discovers this <img> once React has
+         mounted the Hero component — preloading starts the fetch the
+         moment the HTML parses, in parallel with the JS bundle. -->
+    <link rel="preload" as="image" href="/assets/hero/shoo-drift-one.webp" fetchpriority="high" />
   </head>
   <body>
     <div id="root"></div>
