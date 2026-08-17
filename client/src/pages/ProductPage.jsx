@@ -209,8 +209,15 @@ export default function ProductPage() {
       />
       {/* ── Gallery + buy panel ─────────────────────────────── */}
       <section className="flex flex-col pt-[120px] lg:flex-row lg:justify-center lg:pt-[128px]">
-        <div className="flex w-full flex-col lg:w-[760px]">
-          <div className="relative flex aspect-[760/820] w-full items-center justify-center bg-[#EDEDED] text-[#CCCCC7] lg:aspect-auto lg:h-[820px]">
+        <div className="flex w-full flex-col lg:w-[615px]">
+          {/* Admin-uploaded photos are consistently ~3:4 portrait (measured:
+              1000×1339 ≈ 0.747) — this box is sized to that same ratio
+              (615/820 = 0.75) so object-cover shows the full photo top to
+              bottom with only an imperceptible sliver of crop, instead of
+              the old 760×820 (0.927) box either cropping a third of the
+              image off the top/bottom (cover) or leaving grey bars on the
+              sides (contain). */}
+          <div className="relative flex aspect-[3/4] w-full items-center justify-center bg-[#EDEDED] text-[#CCCCC7]">
             <ProductImage product={product} index={activeImage} colorName={activeColor} eager />
           </div>
 
@@ -227,7 +234,10 @@ export default function ProductPage() {
                     activeImage === i ? 'border-black' : 'border-transparent'
                   }`}
                 >
-                  <ProductImage product={product} index={i} colorName={activeColor} />
+                  {/* 64px CSS box — was requesting the same 1000px asset as
+                      the full hero image above. width=150 covers up to 2x
+                      DPR with headroom, at a fraction of the bytes. */}
+                  <ProductImage product={product} index={i} colorName={activeColor} width={150} />
                 </button>
               ))}
             </div>
