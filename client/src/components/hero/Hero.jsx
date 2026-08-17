@@ -151,9 +151,14 @@ export default function Hero() {
 
     const ctx = gsap.context(() => {
       if (desktop) {
+        // No opacity here (position/rotate only) — this is the page's LCP
+        // element. Animating its opacity meant the browser couldn't count
+        // it as painted until the elastic bounce visually settled, pushing
+        // LCP out by however long that took (measured live: LCP ~5.2s vs.
+        // FCP ~1.2s). Staying fully opaque throughout keeps the drop+
+        // rotate motion but makes the shoe paintable on frame one.
         gsap.from(shoeRef.current, {
           y: -380,
-          opacity: 0,
           rotate: -10,
           duration: 1.4,
           ease: 'elastic.out(1, 0.65)',
@@ -201,9 +206,9 @@ export default function Hero() {
         // instead of desktop's richer multi-property scrub, since the
         // mobile states don't share desktop's absolute-positioned pieces
         // to interpolate individually.
+        // Same LCP reasoning as the desktop branch above — no opacity anim.
         gsap.from(mobileShoeRefs.current[0], {
           y: -380,
-          opacity: 0,
           rotate: -10,
           duration: 1.4,
           ease: 'elastic.out(1, 0.65)',
