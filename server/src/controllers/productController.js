@@ -11,6 +11,11 @@ const listQuery = z.object({
   size: z.string().optional(), // "US 9" or "US 9,US 10"
   color: z.string().optional(),
   tag: z.string().optional(),
+  // "Recently Viewed" on the PDP needs a handful of specific products by
+  // slug rather than a filtered page — same csv() convention as size/color/
+  // brand/tag above, so it's just another where-clause branch, not a new
+  // endpoint.
+  slugs: z.string().optional(),
   minPrice: z.coerce.number().nonnegative().optional(),
   maxPrice: z.coerce.number().nonnegative().optional(),
   // In-stock-only toggle. z.coerce.boolean() would treat the string "false"
@@ -124,6 +129,7 @@ export const listProducts = asyncHandler(async (req, res) => {
 
   const where = {
     isActive: true,
+    ...(csv(f.slugs) ? { slug: { in: csv(f.slugs) } } : {}),
     ...(f.gender ? { gender: f.gender } : {}),
     ...(csv(f.silhouette) ? { silhouette: { in: csv(f.silhouette) } } : {}),
     ...(csv(f.category) ? { category: { slug: { in: csv(f.category) } } } : {}),
