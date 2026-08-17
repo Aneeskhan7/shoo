@@ -5,7 +5,6 @@ import PromoStrip from './PromoStrip';
 import Footer from './Footer';
 import WhatsAppButton from './WhatsAppButton';
 import CartDrawer from '../cart/CartDrawer';
-import QuickViewModal from '../product/QuickViewModal';
 import SiteSchema from '../seo/SiteSchema';
 import { useSmoothScroll } from '../../hooks/useSmoothScroll';
 import { useAuthBootstrap } from '../../hooks/useAuth';
@@ -51,7 +50,6 @@ export default function Layout() {
       </main>
       <Footer />
       <CartDrawer />
-      <QuickViewModal />
       <WhatsAppButton />
     </div>
   );

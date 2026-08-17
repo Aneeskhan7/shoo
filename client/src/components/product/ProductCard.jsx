@@ -18,7 +18,6 @@ import { useCartStore, useUIStore } from '../../store';
 export default function ProductCard({ product, badge, eager = false }) {
   const add = useCartStore((s) => s.add);
   const setCartOpen = useUIStore((s) => s.setCartOpen);
-  const setQuickViewSlug = useUIStore((s) => s.setQuickViewSlug);
   const qc = useQueryClient();
 
   const primaryColor = product.colors?.[0];
@@ -55,14 +54,16 @@ export default function ProductCard({ product, badge, eager = false }) {
     setCartOpen(true);
   };
 
-  // Warms the Quick View modal so the common hover-then-click flow opens
-  // instantly instead of waiting on a fresh GET /products/:slug. Never
-  // unconditionally overwrites (`old ??`) — a second hover, or an already-
-  // resolved fresher cache entry, must never be clobbered. conditionItems
-  // defaults to [] because a "View full details" click hands this same
-  // cache entry to the real PDP, whose ConditionReport reads
-  // product.conditionItems.find(...) with no optional chaining.
-  const prefetchQuickView = () => {
+  // Warms the PDP so clicking through from the card feels instant instead
+  // of waiting on a fresh GET /products/:slug + the lazy route chunk. Never
+  // unconditionally overwrites the cache (`old ??`) — a second hover, or an
+  // already-resolved fresher entry, must never be clobbered. conditionItems
+  // defaults to [] since the seeded row doesn't carry it — ConditionReport
+  // reads product.conditionItems.find(...) with no optional chaining, and
+  // the PDP's own query (staleTime: 0) backfills the real value moments
+  // after mounting anyway.
+  const prefetchPdp = () => {
+    import('../../pages/ProductPage');
     qc.setQueryData(qk.product(product.slug), (old) =>
       old ?? { product: { ...product, conditionItems: [] }, related: [] },
     );
@@ -70,9 +71,9 @@ export default function ProductCard({ product, badge, eager = false }) {
 
   return (
     <article
-      onMouseEnter={prefetchQuickView}
-      onFocus={prefetchQuickView}
-      onTouchStart={prefetchQuickView}
+      onMouseEnter={prefetchPdp}
+      onFocus={prefetchPdp}
+      onTouchStart={prefetchPdp}
       className="group relative flex w-full flex-col overflow-hidden rounded-[8px] border-[0.5px] border-[#d3d3d3] bg-white text-black"
     >
       <Link to={`/products/${product.slug}`} className="flex flex-1 flex-col">
@@ -123,13 +124,12 @@ export default function ProductCard({ product, badge, eager = false }) {
       </Link>
 
       <div className="mt-auto flex flex-col items-center gap-[10px] px-[14px] pb-[14px]">
-        <button
-          type="button"
-          onClick={() => setQuickViewSlug(product.slug)}
+        <Link
+          to={`/products/${product.slug}`}
           className="flex h-[36px] w-[130px] items-center justify-center rounded-full bg-[#f2f2f2] text-[12px] font-medium tracking-[0.01em] text-grey-700 transition-colors hover:bg-[#e8e8e8] md:w-[176px]"
         >
           Quick View
-        </button>
+        </Link>
         {needsSizeChoice ? (
           <Link
             to={`/products/${product.slug}`}

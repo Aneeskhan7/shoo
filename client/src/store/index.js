@@ -81,15 +81,10 @@ export const useUIStore = create((set) => ({
   cartOpen: false,
   menuOpen: false,
   searchOpen: false,
-  // Slug of the product currently open in the Quick View modal, or null.
-  // Not a boolean + separate "which product" pair — the slug being present
-  // *is* "open", same as how cartOpen alone gates the cart drawer.
-  quickViewSlug: null,
   setCartOpen: (cartOpen) => set({ cartOpen }),
   setMenuOpen: (menuOpen) => set({ menuOpen }),
   setSearchOpen: (searchOpen) => set({ searchOpen }),
-  setQuickViewSlug: (quickViewSlug) => set({ quickViewSlug }),
-  closeAll: () => set({ cartOpen: false, menuOpen: false, searchOpen: false, quickViewSlug: null }),
+  closeAll: () => set({ cartOpen: false, menuOpen: false, searchOpen: false }),
 }));
 
 /**
