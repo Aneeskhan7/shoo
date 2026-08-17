@@ -1,9 +1,11 @@
+import { Navigate } from 'react-router-dom';
 import { useProductQuery } from '../hooks/useProductQuery';
 import FilterBar from '../components/product/FilterBar';
 import SearchSidebar from '../components/product/SearchSidebar';
 import ProductGrid from '../components/product/ProductGrid';
 import Pagination from '../components/product/Pagination';
 import Seo from '../components/seo/Seo';
+import { matchCollectionSlug, stripCollectionFilterKeys } from '../lib/collections';
 
 const GENDER_TITLE = { MEN: "Men's", WOMEN: "Women's", KIDS: "Kids'", UNISEX: 'Unisex' };
 // Mirrors FilterBar.jsx's SILHOUETTE_VALUE mapping (display label -> stored value).
@@ -32,6 +34,14 @@ function shopTitle(params) {
 export default function ShopPage() {
   const { params, setParam, setParamsMulti, setPage, clearAll, resetAll, products, filters } =
     useProductQuery();
+
+  // Old single-filter links (Navbar's "?gender=MEN" etc.) now have a real
+  // collection URL — consolidate any inbound SEO signal there instead of
+  // serving the same content twice. Multi-filter/ad-hoc combos stay here.
+  const collectionSlug = matchCollectionSlug(params);
+  if (collectionSlug) {
+    return <Navigate to={`/collections/${collectionSlug}${stripCollectionFilterKeys(params)}`} replace />;
+  }
 
   const list = products.data?.products ?? [];
   const hasAnyParams = [...params.keys()].length > 0;

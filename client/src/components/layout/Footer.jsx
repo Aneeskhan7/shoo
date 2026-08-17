@@ -10,10 +10,10 @@ const COLUMNS = [
   {
     title: 'SHOP',
     links: [
-      ['New Releases', '/shop?tag=new-release'],
-      ['Men', '/shop?gender=MEN'],
-      ['Women', '/shop?gender=WOMEN'],
-      ['Kids', '/shop?gender=KIDS'],
+      ['New Releases', '/collections/new-releases'],
+      ['Men', '/collections/mens-sneakers'],
+      ['Women', '/collections/womens-sneakers'],
+      ['Kids', '/collections/kids-sneakers'],
       ['Size Guide', '/size-guide'],
     ],
   },

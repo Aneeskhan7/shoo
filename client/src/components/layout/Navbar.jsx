@@ -11,11 +11,11 @@ import { useAuthActions } from '../../hooks/useAuth';
  * which plain flexbox can't do without extra spacers.
  */
 const LINKS = [
-  { label: 'NEW RELEASES', to: '/shop?tag=new-release' },
-  { label: 'MEN', to: '/shop?gender=MEN' },
-  { label: 'WOMEN', to: '/shop?gender=WOMEN' },
-  { label: 'KIDS', to: '/shop?gender=KIDS' },
-  { label: 'UNISEX', to: '/shop?gender=UNISEX' },
+  { label: 'NEW RELEASES', to: '/collections/new-releases' },
+  { label: 'MEN', to: '/collections/mens-sneakers' },
+  { label: 'WOMEN', to: '/collections/womens-sneakers' },
+  { label: 'KIDS', to: '/collections/kids-sneakers' },
+  { label: 'UNISEX', to: '/collections/unisex-sneakers' },
 ];
 
 const MEMBER_LINKS = [

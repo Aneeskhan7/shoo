@@ -6,8 +6,14 @@ import { getFilters, getProducts, qk } from '../lib/api';
 /**
  * Filter state lives in the URL so results are shareable and back/forward work.
  * Shared by the Shop and Search pages, which differ only in chrome.
+ *
+ * `baseFilters` (optional) is a fixed filter — e.g. `{ gender: 'MEN' }` —
+ * merged into every request without being reflected in the URL, so
+ * CollectionPage.jsx can pin a collection's dimension while the URL only
+ * ever carries the visitor's own secondary filters (size, sort, page…).
+ * Pass a stable (module-level) object — it's a query-key dependency.
  */
-export function useProductQuery() {
+export function useProductQuery(baseFilters = {}) {
   const [params, setParams] = useSearchParams();
 
   const setParam = useCallback(
@@ -61,7 +67,13 @@ export function useProductQuery() {
     setParams(new URLSearchParams(), { replace: true });
   }, [setParams]);
 
-  const query = useMemo(() => Object.fromEntries(params.entries()), [params]);
+  // URL params win on key collision — a visitor-applied filter (unlikely to
+  // ever share a key with a fixed collection filter, but if it does, what's
+  // in the URL is the more specific intent).
+  const query = useMemo(
+    () => ({ ...baseFilters, ...Object.fromEntries(params.entries()) }),
+    [params, baseFilters],
+  );
 
   const products = useQuery({
     queryKey: qk.products(query),

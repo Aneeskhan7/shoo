@@ -20,6 +20,21 @@ const STATIC_ROUTES = [
   { path: '/faq', changefreq: 'monthly', priority: '0.4' },
 ];
 
+// Mirrors the slugs in client/src/lib/collections.js's COLLECTIONS map —
+// duplicated here rather than imported since client and server are
+// separate bundles/runtimes. Keep the two lists in sync.
+const COLLECTION_SLUGS = [
+  'mens-sneakers',
+  'womens-sneakers',
+  'kids-sneakers',
+  'unisex-sneakers',
+  'new-releases',
+  'running-shoes',
+  'high-top-sneakers',
+  'lifestyle-sneakers',
+  'trail-sneakers',
+];
+
 const escapeXml = (s) =>
   String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' }[c]));
 
@@ -45,6 +60,12 @@ export const sitemap = asyncHandler(async (_req, res) => {
       lastmod: ['/', '/shop'].includes(r.path) ? newestProduct?.updatedAt : undefined,
       changefreq: r.changefreq,
       priority: r.priority,
+    })),
+    ...COLLECTION_SLUGS.map((slug) => ({
+      loc: `${ORIGIN}/collections/${slug}`,
+      lastmod: newestProduct?.updatedAt,
+      changefreq: 'daily',
+      priority: '0.8',
     })),
     ...products.map((p) => ({
       loc: `${ORIGIN}/products/${p.slug}`,

@@ -6,6 +6,7 @@ import Layout from './components/layout/Layout';
 import HomePage from './pages/HomePage';
 
 const ShopPage = lazy(() => import('./pages/ShopPage'));
+const CollectionPage = lazy(() => import('./pages/CollectionPage'));
 const ProductPage = lazy(() => import('./pages/ProductPage'));
 const CartPage = lazy(() => import('./pages/CartPage'));
 const CheckoutPage = lazy(() => import('./pages/CheckoutPage'));
@@ -61,6 +62,7 @@ export default function App() {
               {/* Open to everyone — no auth anywhere in this block. */}
               <Route index element={<HomePage />} />
               <Route path="shop" element={<ShopPage />} />
+              <Route path="collections/:slug" element={<CollectionPage />} />
               <Route path="products/:slug" element={<ProductPage />} />
               <Route path="cart" element={<CartPage />} />
               <Route path="checkout" element={<CheckoutPage />} />
