@@ -98,7 +98,7 @@ export default function AdminBlogFormPage() {
   if (isEdit && loadingExisting) return <p className="text-eyebrow text-grey-500">Loading…</p>;
 
   return (
-    <div className="max-w-[720px]">
+    <div className="mx-auto max-w-[720px]">
       <div className="flex items-center gap-3">
         <Link to="/admin/blog" className="text-[13px] text-grey-500 hover:text-black">
           ← Blog
