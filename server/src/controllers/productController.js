@@ -36,6 +36,25 @@ const productInclude = {
   tags: { select: { tag: true } },
 };
 
+// A grid card only ever renders images[0] (see getProductImage() /
+// ProductImage.jsx's default index=0) — shipping the product's full
+// gallery (every angle, every condition-report close-up) to every card on
+// a 48-product listing page is pure unused payload. This variant caps it
+// at the one photo a card can actually show, and excludes condition
+// close-ups outright (client already filters them, but there's no reason
+// to ship them at all here). Only for list-shaped responses — getProduct's
+// primary product keeps the full `productInclude` gallery, since the PDP's
+// thumbnail rail and condition report need every image.
+const cardProductInclude = {
+  ...productInclude,
+  images: {
+    where: { conditionCategory: null },
+    orderBy: { position: 'asc' },
+    take: 1,
+    select: { id: true, url: true, altText: true },
+  },
+};
+
 const sizeValue = (size) => parseFloat(String(size).replace(/[^\d.]/g, '')) || 0;
 
 /** Flattens variants into the price range + swatch list the cards and PLP need. */
@@ -134,7 +153,7 @@ export const listProducts = asyncHandler(async (req, res) => {
   const [rows, total] = await Promise.all([
     prisma.product.findMany({
       where,
-      include: productInclude,
+      include: cardProductInclude,
       orderBy,
       // Price sorts are resolved after shaping, since price lives on variants.
       ...(f.sort.startsWith('price')
@@ -166,7 +185,7 @@ export const featuredProducts = asyncHandler(async (req, res) => {
   const take = Math.min(Number(req.query.limit) || 8, 24);
   const rows = await prisma.product.findMany({
     where: { isActive: true, isFeatured: true },
-    include: productInclude,
+    include: cardProductInclude,
     orderBy: { createdAt: 'desc' },
     take,
   });
@@ -187,7 +206,7 @@ export const getProduct = asyncHandler(async (req, res) => {
   const ratings = product.reviews.map((r) => r.rating);
   const related = await prisma.product.findMany({
     where: { isActive: true, categoryId: product.categoryId, NOT: { id: product.id } },
-    include: productInclude,
+    include: cardProductInclude,
     take: 4,
   });
 

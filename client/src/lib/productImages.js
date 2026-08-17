@@ -48,12 +48,12 @@ function optimizeCloudinaryUrl(url, width = 1000) {
  * Cart lines never carry the full `images[]` array, so without the `image`
  * fallback here they'd resolve to nothing and show the placeholder icon.
  */
-export function getProductImages(product) {
-  return getProductImageEntries(product).map((e) => e.url);
+export function getProductImages(product, opts) {
+  return getProductImageEntries(product, opts).map((e) => e.url);
 }
 
-export function getProductImage(product) {
-  return getProductImages(product)[0];
+export function getProductImage(product, opts) {
+  return getProductImages(product, opts)[0];
 }
 
 /**
@@ -61,8 +61,13 @@ export function getProductImage(product) {
  * alongside its URL so gallery/card components can render something more
  * useful than the bare product name on every image (distinct alt text per
  * image is a real accessibility + image-SEO signal, not just decoration).
+ *
+ * `width` (optional) overrides optimizeCloudinaryUrl()'s default — a 268px
+ * shop card doesn't need the same 1000px asset a full PDP gallery does.
+ * Omit it to keep today's default everywhere that hasn't opted into a
+ * smaller size.
  */
-export function getProductImageEntries(product) {
+export function getProductImageEntries(product, { width } = {}) {
   const name = product?.name || product?.productName || '';
   // Thrift-condition close-ups (outsole, heel, etc.) are tagged and live in
   // the same product.images[] rows, but they're not part of the main
@@ -70,7 +75,7 @@ export function getProductImageEntries(product) {
   const real = product?.images?.filter((img) => img.url && !img.conditionCategory);
   if (real?.length) {
     return real.map((img, i) => ({
-      url: optimizeCloudinaryUrl(img.url),
+      url: optimizeCloudinaryUrl(img.url, width),
       // DB altText is often just a copy of the product name (bulk-upload
       // default) — that adds no information over the name alone, so only
       // use it when it says something distinct.
@@ -78,7 +83,7 @@ export function getProductImageEntries(product) {
     }));
   }
   if (product?.image) {
-    return [{ url: optimizeCloudinaryUrl(product.image), alt: buildAlt(name, product?.colorName, 0) }];
+    return [{ url: optimizeCloudinaryUrl(product.image, width), alt: buildAlt(name, product?.colorName, 0) }];
   }
   return [];
 }
