@@ -1,9 +1,15 @@
 import { Link } from 'react-router-dom';
+import Seo from '../components/seo/Seo';
 
-/** 404 — no Figma frame; built from the hero's dark surface + ghost wordmark. */
+/** 404 — no Figma frame; built from the hero's dark surface + ghost wordmark.
+ *
+ * The Vercel SPA rewrite means every unknown URL returns HTTP 200 with
+ * index.html (a "soft 404") — this noindex meta is the only mitigation
+ * available without server-side rendering. */
 export default function NotFoundPage() {
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-black px-6 text-center text-off-white">
+      <Seo title="Page not found" noindex />
       <p
         aria-hidden="true"
         className="pointer-events-none absolute select-none font-black leading-[0.9]"

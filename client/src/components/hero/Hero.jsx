@@ -244,9 +244,13 @@ export default function Hero() {
         className="relative hidden h-screen w-full overflow-hidden lg:block"
         style={{ ...THEME[1], background: 'var(--hero-bg)', color: 'var(--hero-fg)' }}
       >
-        <h1
+        {/* Decorative — the real, keyword-bearing <h1> lives in
+            HomePage.jsx (visually hidden) so it doesn't fight this
+            wordmark's design. ref-based, not tag-based, so demoting this
+            from h1 to p doesn't touch the GSAP pin/scrub animation below. */}
+        <p
           ref={wordmarkRef}
-          aria-label="SHOO"
+          aria-hidden="true"
           className="pointer-events-none absolute select-none whitespace-nowrap font-black"
           style={{
             left: '4.826%',
@@ -258,11 +262,20 @@ export default function Hero() {
           }}
         >
           SHOO
-        </h1>
+        </p>
 
         <div ref={shoeRef} className="absolute inset-0">
-          <HeroImage src={STATES[0].heroImage} alt={STATES[0].name} opacity={active === 0 ? 1 : 0} eager />
-          <HeroImage src={STATES[1].heroImage} alt={STATES[1].name} opacity={active === 1 ? 1 : 0} />
+          <HeroImage
+            src={STATES[0].heroImage}
+            alt={`${STATES[0].name} — ${STATES[0].colorName} sneaker`}
+            opacity={active === 0 ? 1 : 0}
+            eager
+          />
+          <HeroImage
+            src={STATES[1].heroImage}
+            alt={`${STATES[1].name} — ${STATES[1].colorName} sneaker`}
+            opacity={active === 1 ? 1 : 0}
+          />
         </div>
 
         {/* Tagline + carousel arrows */}
@@ -371,7 +384,7 @@ export default function Hero() {
                 <div className="relative -mx-6 aspect-[1440/900] w-[calc(100%+48px)] max-w-[640px]">
                   <HeroImage
                     src={s.heroImage}
-                    alt={s.name}
+                    alt={`${s.name} — ${s.colorName} sneaker`}
                     style={{ left: '24%', top: '20%', width: '52%', height: '60%' }}
                   />
                 </div>

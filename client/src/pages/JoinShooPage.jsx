@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import Input from '../components/ui/Input';
 import { useAuthActions } from '../hooks/useAuth';
 import { useAuthStore } from '../store';
+import Seo from '../components/seo/Seo';
 
 const BENEFITS = [
   ['Order history', 'Every pair you’ve bought, in one place.'],
@@ -53,6 +54,7 @@ export default function JoinShooPage() {
 
   return (
     <div className="min-h-screen bg-black px-6 pt-[84px] text-off-white">
+      <Seo title="Join SHOO" noindex />
       <div className="mx-auto flex max-w-[1100px] flex-col gap-16 py-20 lg:flex-row lg:gap-24">
         <div className="w-full max-w-[440px]">
           <p className="text-eyebrow text-green">Membership</p>

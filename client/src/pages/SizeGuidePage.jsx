@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import Seo from '../components/seo/Seo';
 
 /**
  * Size Guide — Figma 40:192 (1440×2000). Sections:
@@ -93,6 +94,11 @@ function Chart({ headers, rows, widths }) {
 export default function SizeGuidePage() {
   return (
     <div className="bg-off-white text-black">
+      <Seo
+        title="Sneaker Size Guide — US, UK & EU Conversions"
+        description="Find your perfect fit — full men's and kids' size charts with US, UK, EU and cm conversions, plus width guidance and how to measure at home."
+        canonical="/size-guide"
+      />
       {/* ── Hero (40:206) — dark, 260px + 84px nav ───────────── */}
       <section className="flex flex-col gap-[14px] bg-black px-6 pb-[56px] pt-[140px] text-off-white lg:px-20">
         <p className="text-eyebrow text-grey-500">SIZING &amp; FIT GUIDE</p>

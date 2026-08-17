@@ -1,5 +1,6 @@
 import { NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store';
+import Seo from '../seo/Seo';
 
 const TABS = [
   ['Dashboard', '/account'],
@@ -36,6 +37,9 @@ export default function AccountLayout() {
 
   return (
     <div className="min-h-screen bg-off-white pt-[120px] text-black lg:pt-[128px]">
+      {/* Covers all /account/* children in one place — Dashboard, My Orders,
+          an individual order, Wishlist, Addresses. None are indexable. */}
+      <Seo title="My Account" noindex />
       <header className="px-6 pb-8 pt-12 lg:px-20">
         <p className="text-eyebrow text-grey-500">SHOO Member</p>
         <h1 className="text-display-l mt-4">

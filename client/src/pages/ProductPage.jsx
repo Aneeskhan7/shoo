@@ -19,6 +19,8 @@ import ProductCard from '../components/product/ProductCard';
 import ReviewCard from '../components/product/ReviewCard';
 import ConditionReport from '../components/product/ConditionReport';
 import { formatPrice } from '../components/ui/Price';
+import Seo from '../components/seo/Seo';
+import { buildProductSchema } from '../lib/productSchema';
 
 /**
  * Product Detail — Figma 39:2 (1440×1944).
@@ -149,6 +151,7 @@ export default function ProductPage() {
   if (isError || !product) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-off-white text-black">
+        <Seo title="Product not found" noindex />
         <p className="text-eyebrow text-grey-500">Product</p>
         <h1 className="text-h1">{error?.message || 'Product not found'}</h1>
         <Link to="/shop" className="rounded-full bg-black px-6 py-3 text-[13px] text-off-white">
@@ -183,8 +186,23 @@ export default function ProductPage() {
   const discountPercent =
     compareAtPrice && compareAtPrice > price ? Math.round((1 - price / compareAtPrice) * 100) : 0;
 
+  const productSchema = buildProductSchema({
+    product,
+    images,
+    activeColor,
+    price,
+    url: `/products/${product.slug}`,
+  });
+
   return (
     <div className="bg-off-white text-black">
+      <Seo
+        title={`${product.name} — ${activeColor}`}
+        description={`${product.tagline || product.description || product.story || ''} Free shipping over PKR 30,000.`}
+        image={images[0]}
+        type="product"
+        jsonLd={productSchema}
+      />
       {/* ── Gallery + buy panel ─────────────────────────────── */}
       <section className="flex flex-col pt-[120px] lg:flex-row lg:justify-center lg:pt-[128px]">
         <div className="flex w-full flex-col lg:w-[760px]">
