@@ -48,6 +48,41 @@ function DropArt({ product, className = '', eager = false }) {
   );
 }
 
+/**
+ * Same shape as the real editorial/quote/grid block below (1 hero tile, 2
+ * side tiles, a quote row, 4 grid tiles) — rendered while the featured-
+ * products fetch is in flight so the page never goes from "just hero +
+ * stats" to "hero + stats + this whole block" in one jump once data
+ * arrives. That jump was a real layout-shift bug: nothing here reserved
+ * the space beforehand, so the page visibly extended and shoved the stats
+ * section down the moment the fetch resolved.
+ */
+function LookbookSkeleton() {
+  const tile = 'animate-pulse rounded-[2px] bg-[#141414]';
+  return (
+    <>
+      <section className="grid gap-px bg-[#0a0a0a] lg:grid-cols-[2fr_1fr]">
+        <div className={`aspect-[3/4] ${tile}`} />
+        <div className="grid gap-px lg:grid-rows-2">
+          <div className={`aspect-[3/4] ${tile}`} />
+          <div className={`aspect-[3/4] ${tile}`} />
+        </div>
+      </section>
+      <section className="flex flex-col justify-center gap-10 bg-black px-6 py-20 lg:h-[320px] lg:flex-row lg:items-center lg:px-16 lg:py-0">
+        <div className="h-[64px] max-w-[720px] flex-1 animate-pulse rounded bg-[#141414]" />
+        <div className="h-[64px] animate-pulse rounded bg-[#141414] lg:w-[300px]" />
+      </section>
+      <section className="bg-[#0a0a0a] px-6 py-16 lg:px-16 lg:py-[40px]">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className={`aspect-[3/4] rounded-[6px] ${tile}`} />
+          ))}
+        </div>
+      </section>
+    </>
+  );
+}
+
 function DropPrice({ product, priceCls, compareCls }) {
   return (
     <span className="flex items-baseline gap-2">
@@ -99,6 +134,8 @@ export default function LookbookPage() {
 
         <span className="absolute inset-x-0 bottom-0 hidden h-px bg-green lg:block" />
       </section>
+
+      {isLoading && <LookbookSkeleton />}
 
       {!isLoading && hero && (
         <>
