@@ -21,19 +21,16 @@ const COLUMNS = [
     title: 'COMPANY',
     links: [
       ['About', '/about'],
-      ['Careers', '/about'],
-      ['Press', '/about'],
-      ['Sustainability', '/about'],
+      ['Careers', '/careers'],
+      ['Press', '/press'],
     ],
   },
   {
     title: 'SUPPORT',
     links: [
       ['Contact', '/contact'],
-      ['Shipping', '/size-guide'],
-      ['Returns', '/size-guide'],
       ['Size Guide', '/size-guide'],
-      ['FAQ', '/size-guide'],
+      ['FAQ', '/faq'],
     ],
   },
   {
