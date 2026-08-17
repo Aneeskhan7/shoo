@@ -8,6 +8,7 @@ import Input from '../components/ui/Input';
 import TabGroup from '../components/ui/TabGroup';
 import ProductImage from '../components/ui/ProductImage';
 import { formatPrice } from '../components/ui/Price';
+import Seo from '../components/seo/Seo';
 
 /**
  * Checkout — Figma 40:2. Three steps + a sticky summary rail.
@@ -108,6 +109,7 @@ export default function CheckoutPage() {
   if (items.length === 0) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-5 bg-off-white text-black">
+        <Seo title="Checkout" noindex />
         <h1 className="text-h1">Your cart is empty</h1>
         <Link to="/shop" className="rounded-full bg-black px-7 py-4 text-[14px] text-off-white">
           Browse the Collection →
@@ -169,6 +171,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-off-white pt-[120px] text-black lg:pt-[128px]">
+      <Seo title="Checkout" noindex />
       {/* Progress bar (40:16) */}
       <div className="flex h-[60px] items-center gap-2 border-b border-black/10 px-4 sm:gap-6 lg:px-20">
         {STEPS.map((label, i) => (

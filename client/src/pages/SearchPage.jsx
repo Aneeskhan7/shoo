@@ -4,6 +4,7 @@ import FilterBar from '../components/product/FilterBar';
 import SearchSidebar from '../components/product/SearchSidebar';
 import ProductGrid from '../components/product/ProductGrid';
 import Pagination from '../components/product/Pagination';
+import Seo from '../components/seo/Seo';
 
 /**
  * Search Results — Figma 41:127.
@@ -24,6 +25,7 @@ export default function SearchPage() {
 
   return (
     <div className="min-h-screen bg-off-white pt-[120px] text-black lg:pt-[128px]">
+      <Seo title={q ? `Search: ${q}` : 'Search'} noindex />
       {/* Search bar */}
       <div className="flex items-center justify-center gap-[12px] bg-white px-6 py-4 lg:px-[64px]">
         <form

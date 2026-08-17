@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { getProductImages } from '../../lib/productImages';
+import { getProductImageEntries } from '../../lib/productImages';
 import ShoePlaceholder from './ShoePlaceholder';
 
 /**
@@ -12,6 +12,11 @@ import ShoePlaceholder from './ShoePlaceholder';
  * `product` accepts either a full product object or a minimal
  * `{ slug, images? }` shape, so cart/order line items (which only ever
  * carried a slug) can use it too.
+ *
+ * Alt text resolution: explicit `alt` prop wins outright; otherwise
+ * `colorName` (cart/order lines already carry this) is folded into the
+ * resolved entry's alt so two colorways of the same shoe don't read
+ * identically to a screen reader.
  */
 export default function ProductImage({
   product,
@@ -20,19 +25,21 @@ export default function ProductImage({
   fit = 'cover',
   className = '',
   placeholderLabel,
+  alt,
+  colorName,
 }) {
   const [failed, setFailed] = useState(false);
-  const images = getProductImages(product);
-  const src = images[index] ?? images[0];
+  const entries = getProductImageEntries(colorName ? { ...product, colorName } : product);
+  const entry = entries[index] ?? entries[0];
 
-  if (!src || failed) {
+  if (!entry || failed) {
     return <ShoePlaceholder className={className} label={placeholderLabel} />;
   }
 
   return (
     <img
-      src={src}
-      alt={product?.name || product?.productName || 'Product photo'}
+      src={entry.url}
+      alt={alt || entry.alt}
       loading={eager ? 'eager' : 'lazy'}
       decoding="async"
       onError={() => setFailed(true)}

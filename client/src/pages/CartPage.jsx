@@ -7,6 +7,7 @@ import { validateCart, qk } from '../lib/api';
 import QtyStepper from '../components/ui/QtyStepper';
 import ProductImage from '../components/ui/ProductImage';
 import { formatPrice } from '../components/ui/Price';
+import Seo from '../components/seo/Seo';
 
 /**
  * Cart — Figma 39:146 (1440×984).
@@ -44,6 +45,7 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-5 bg-off-white text-black">
+        <Seo title="Your Cart" noindex />
         <h1 className="text-display-l">Your Cart</h1>
         <p className="text-[15px] text-grey-500">Nothing here yet.</p>
         <Link
@@ -60,6 +62,7 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-off-white pt-[84px] text-black">
+      <Seo title="Your Cart" noindex />
       <div className="px-6 pt-12 lg:px-[64px]">
         <h1 className="text-display-l">Your Cart</h1>
         <p className="mt-1 text-[13px] text-grey-500">

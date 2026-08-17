@@ -41,10 +41,23 @@ import {
 } from '../controllers/adminProductController.js';
 import { listAdminOrders, getAdminOrder, updateOrderStatus } from '../controllers/adminOrderController.js';
 import { uploadProductImage as uploadMiddleware } from '../lib/upload.js';
+import { sitemap } from '../controllers/sitemapController.js';
+import { listPosts, getPost } from '../controllers/blogController.js';
+import {
+  listAdminPosts,
+  getAdminPost,
+  createPost,
+  updatePost,
+  deletePost,
+  uploadPostCover,
+} from '../controllers/adminBlogController.js';
 
 const router = Router();
 
 router.get('/health', (_req, res) => res.json({ ok: true }));
+
+// Public, no auth — read by search-engine crawlers.
+router.get('/sitemap.xml', sitemap);
 
 // Products
 router.get('/products', listProducts);
@@ -65,6 +78,10 @@ router.get('/search', listProducts);
 
 // Reviews
 router.get('/products/:slug/reviews', listReviews);
+
+// Blog / Journal — published posts only (see blogController.js)
+router.get('/blog', listPosts);
+router.get('/blog/:slug', getPost);
 
 // Contact form
 router.post('/contact', sendContactMessage);
@@ -126,5 +143,14 @@ router.patch('/admin/products/:id/images/:imageId/primary', setPrimaryImage);
 router.get('/admin/orders', listAdminOrders);
 router.get('/admin/orders/:id', getAdminOrder);
 router.patch('/admin/orders/:id/status', updateOrderStatus);
+
+router.get('/admin/blog', listAdminPosts);
+router.post('/admin/blog', createPost);
+router.get('/admin/blog/:id', getAdminPost);
+router.put('/admin/blog/:id', updatePost);
+router.delete('/admin/blog/:id', deletePost);
+router.post('/admin/blog/:id/cover', (req, res, next) => {
+  uploadMiddleware(req, res, (err) => (err ? next(new ApiError(400, err.message)) : next()));
+}, uploadPostCover);
 
 export default router;

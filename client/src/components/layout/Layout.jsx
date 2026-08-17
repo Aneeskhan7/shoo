@@ -5,6 +5,7 @@ import PromoStrip from './PromoStrip';
 import Footer from './Footer';
 import WhatsAppButton from './WhatsAppButton';
 import CartDrawer from '../cart/CartDrawer';
+import SiteSchema from '../seo/SiteSchema';
 import { useSmoothScroll } from '../../hooks/useSmoothScroll';
 import { useAuthBootstrap } from '../../hooks/useAuth';
 import { useUIStore } from '../../store';
@@ -35,6 +36,7 @@ export default function Layout() {
 
   return (
     <div className="relative min-h-screen">
+      <SiteSchema />
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[200] focus:rounded focus:bg-green focus:px-4 focus:py-2 focus:text-black"

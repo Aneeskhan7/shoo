@@ -10,10 +10,10 @@ const COLUMNS = [
   {
     title: 'SHOP',
     links: [
-      ['New Releases', '/shop?tag=new-release'],
-      ['Men', '/shop?gender=MEN'],
-      ['Women', '/shop?gender=WOMEN'],
-      ['Kids', '/shop?gender=KIDS'],
+      ['New Releases', '/collections/new-releases'],
+      ['Men', '/collections/mens-sneakers'],
+      ['Women', '/collections/womens-sneakers'],
+      ['Kids', '/collections/kids-sneakers'],
       ['Size Guide', '/size-guide'],
     ],
   },
@@ -21,19 +21,16 @@ const COLUMNS = [
     title: 'COMPANY',
     links: [
       ['About', '/about'],
-      ['Careers', '/about'],
-      ['Press', '/about'],
-      ['Sustainability', '/about'],
+      ['Careers', '/careers'],
+      ['Journal', '/journal'],
     ],
   },
   {
     title: 'SUPPORT',
     links: [
       ['Contact', '/contact'],
-      ['Shipping', '/size-guide'],
-      ['Returns', '/size-guide'],
       ['Size Guide', '/size-guide'],
-      ['FAQ', '/size-guide'],
+      ['FAQ', '/faq'],
     ],
   },
   {

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import Seo from '../components/seo/Seo';
 
 /**
  * About — Figma 39:256 (1440×3004). Six sections, alternating surfaces:
@@ -32,6 +33,11 @@ const PRESS = ['Hypebeast', 'Highsnobiety', 'Sole Collector', 'Complex', 'Sneake
 export default function AboutPage() {
   return (
     <div className="bg-off-white text-black">
+      <Seo
+        title="About SHOO"
+        description="SHOO curates premium sneakers and streetwear, sourced from brands and makers who obsess over the details — no markup games, no filler."
+        canonical="/about"
+      />
       {/* ── Hero (39:270) — dark. The frame is 720px tall but starts at y=84
              under the overlaying nav, so the section is 804px and every
              absolute offset below is Figma's value + 84. ─────────────── */}

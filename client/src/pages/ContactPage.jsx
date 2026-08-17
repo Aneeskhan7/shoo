@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Input from '../components/ui/Input';
 import { submitContact } from '../lib/api';
+import Seo from '../components/seo/Seo';
 
 const EMPTY = { name: '', email: '', subject: '', message: '' };
 
@@ -34,6 +35,11 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-black px-6 pt-[84px] text-off-white">
+      <Seo
+        title="Contact"
+        description="Question about an order, sizing, or a drop? Send it over — a real person on the SHOO team replies to every message."
+        canonical="/contact"
+      />
       <div className="mx-auto max-w-[560px] py-20">
         <p className="text-eyebrow text-green">Get in touch</p>
         <h1 className="text-display-l mt-5">CONTACT US</h1>

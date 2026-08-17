@@ -55,7 +55,7 @@ export default function ProductCard({ product, badge }) {
     <article className="group relative flex w-full flex-col overflow-hidden rounded-[8px] border-[0.5px] border-[#d3d3d3] bg-white text-black">
       <Link to={`/products/${product.slug}`} className="flex flex-1 flex-col">
         <div className="relative aspect-[268/360] w-full overflow-hidden rounded-[8px] bg-[#f2f2f2] text-[#ccccc7]">
-          <ProductImage product={product} />
+          <ProductImage product={product} colorName={primaryColor?.name} />
           {badge && (
             <span className="absolute left-3 top-3 rounded-[4px] bg-green px-[10px] py-[5px] text-[9px] font-bold tracking-[0.06em] text-black">
               {badge}

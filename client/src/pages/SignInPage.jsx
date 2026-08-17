@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import Input from '../components/ui/Input';
 import { useAuthActions } from '../hooks/useAuth';
 import { useAuthStore } from '../store';
+import Seo from '../components/seo/Seo';
 
 /** SIGN IN — optional. Nothing in the shopping flow sends anyone here. */
 export default function SignInPage() {
@@ -37,6 +38,7 @@ export default function SignInPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-black px-6 pt-[84px] text-off-white">
+      <Seo title="Sign In" noindex />
       <div className="w-full max-w-[440px] py-20">
         <p className="text-eyebrow text-green">Members</p>
         <h1 className="text-display-l mt-5">SIGN IN</h1>

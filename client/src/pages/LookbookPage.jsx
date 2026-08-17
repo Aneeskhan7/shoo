@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getFeatured, qk } from '../lib/api';
 import { getProductImage } from '../lib/productImages';
 import { formatPrice } from '../components/ui/Price';
+import Seo from '../components/seo/Seo';
 
 /**
  * Lookbook — Drop 01 (Figma 41:2, 1440×2655). All-dark editorial:
@@ -37,7 +38,7 @@ function DropArt({ product, className = '', eager = false }) {
       {src && (
         <img
           src={src}
-          alt={product.name}
+          alt={product.colors?.[0]?.name ? `${product.name} — ${product.colors[0].name}` : product.name}
           loading={eager ? 'eager' : 'lazy'}
           fetchpriority={eager ? 'high' : undefined}
           className="h-full w-full object-cover"
@@ -67,6 +68,11 @@ export default function LookbookPage() {
 
   return (
     <div className="bg-black text-off-white">
+      <Seo
+        title="Lookbook — Drop 01"
+        description="Step into the future. Explore SHOO's Drop 01 — curated sneakers with real photos, real prices, real availability."
+        canonical="/lookbook"
+      />
       {/* ── Hero (41:16) — 720px under the 84px nav ──────────── */}
       <section className="relative flex flex-col bg-black px-6 pb-20 pt-[148px] lg:h-[804px] lg:px-16 lg:pb-0">
         <span className="inline-flex w-fit items-center rounded-full bg-green px-[18px] py-[8px] text-[11px] font-bold tracking-[0.12em] text-black">

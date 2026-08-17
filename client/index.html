@@ -4,12 +4,19 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/brand/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SHOO — Premium Sneakers. Streetwear.</title>
+    <!-- These are the pre-hydration fallback (non-JS scrapers, and the
+         instant briefly before React mounts). Every route overwrites them
+         via useSeo() — see client/src/hooks/useSeo.js — this is not the
+         source of truth for any indexable page's actual tags. -->
+    <title>SHOO — Premium Sneakers & Streetwear in Pakistan</title>
     <meta name="description" content="Curated for every step. Premium sneakers and streetwear, 100% authentic, nationwide delivery with cash on delivery." />
-    <meta property="og:title" content="SHOO — Premium Sneakers. Streetwear." />
-    <meta property="og:description" content="Curated for every step." />
-    <meta property="og:image" content="/brand/cover.png" />
+    <link rel="canonical" href="https://www.shoo.business/" />
+    <meta property="og:title" content="SHOO — Premium Sneakers & Streetwear in Pakistan" />
+    <meta property="og:description" content="Curated for every step. Premium sneakers and streetwear, 100% authentic, nationwide delivery with cash on delivery." />
+    <meta property="og:image" content="https://www.shoo.business/brand/cover.png" />
+    <meta property="og:url" content="https://www.shoo.business/" />
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="SHOO" />
     <meta name="theme-color" content="#0A0A0A" />
     <!-- Every product photo is served from Cloudinary — opening the
          connection before the first <img> is discovered saves a DNS+TLS

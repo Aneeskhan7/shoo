@@ -5,6 +5,7 @@ import { getOrder, qk } from '../lib/api';
 import { useAuthStore } from '../store';
 import ProductImage from '../components/ui/ProductImage';
 import { formatPrice } from '../components/ui/Price';
+import Seo from '../components/seo/Seo';
 
 /**
  * Order Confirmation — lifted from the confirmation block inside the Checkout
@@ -26,6 +27,7 @@ export default function OrderConfirmedPage() {
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-off-white text-black">
+        <Seo title="Order" noindex />
         <span className="text-eyebrow text-grey-500">Loading order…</span>
       </div>
     );
@@ -34,6 +36,7 @@ export default function OrderConfirmedPage() {
   if (isError) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-off-white text-black">
+        <Seo title="Order" noindex />
         <h1 className="text-h1">Couldn’t load that order</h1>
         <p className="text-[14px] text-grey-500">{error.message}</p>
         <Link to="/" className="rounded-full bg-black px-7 py-4 text-[14px] text-off-white">
@@ -68,6 +71,7 @@ export default function OrderConfirmedPage() {
 
   return (
     <div className="min-h-screen bg-off-white pt-[84px] text-black">
+      <Seo title={`Order #${order.orderNumber}`} noindex />
       <div className="container-content py-20">
         <span className="flex h-[56px] w-[56px] items-center justify-center rounded-full bg-green text-[24px] text-black">
           ✓

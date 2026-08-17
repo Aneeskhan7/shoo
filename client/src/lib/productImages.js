@@ -49,18 +49,44 @@ function optimizeCloudinaryUrl(url, width = 1000) {
  * fallback here they'd resolve to nothing and show the placeholder icon.
  */
 export function getProductImages(product) {
-  // Thrift-condition close-ups (outsole, heel, etc.) are tagged and live in
-  // the same product.images[] rows, but they're not part of the main
-  // gallery — see getConditionImage() below for those.
-  const real = product?.images
-    ?.filter((img) => img.url && !img.conditionCategory)
-    ?.map((img) => optimizeCloudinaryUrl(img.url));
-  if (real?.length) return real;
-  return product?.image ? [optimizeCloudinaryUrl(product.image)] : FALLBACK;
+  return getProductImageEntries(product).map((e) => e.url);
 }
 
 export function getProductImage(product) {
   return getProductImages(product)[0];
+}
+
+/**
+ * Same resolution as getProductImages(), but keeps each entry's alt text
+ * alongside its URL so gallery/card components can render something more
+ * useful than the bare product name on every image (distinct alt text per
+ * image is a real accessibility + image-SEO signal, not just decoration).
+ */
+export function getProductImageEntries(product) {
+  const name = product?.name || product?.productName || '';
+  // Thrift-condition close-ups (outsole, heel, etc.) are tagged and live in
+  // the same product.images[] rows, but they're not part of the main
+  // gallery — see getConditionImage() below for those.
+  const real = product?.images?.filter((img) => img.url && !img.conditionCategory);
+  if (real?.length) {
+    return real.map((img, i) => ({
+      url: optimizeCloudinaryUrl(img.url),
+      // DB altText is often just a copy of the product name (bulk-upload
+      // default) — that adds no information over the name alone, so only
+      // use it when it says something distinct.
+      alt: img.altText && img.altText !== name ? img.altText : buildAlt(name, product?.colorName, i),
+    }));
+  }
+  if (product?.image) {
+    return [{ url: optimizeCloudinaryUrl(product.image), alt: buildAlt(name, product?.colorName, 0) }];
+  }
+  return [];
+}
+
+function buildAlt(name, colorName, index) {
+  if (name && colorName) return `${name} — ${colorName}${index > 0 ? ` (view ${index + 1})` : ''}`;
+  if (name) return `${name}${index > 0 ? ` (view ${index + 1})` : ''}`;
+  return 'Product photo';
 }
 
 /** The condition close-up photo for one category (OUTSOLE, HEEL_WEAR, …),

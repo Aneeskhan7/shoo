@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/sitemap.xml", "destination": "https://shoo-1.onrender.com/api/sitemap.xml" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
