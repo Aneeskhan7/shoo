@@ -16,6 +16,7 @@ const LINKS = [
   { label: 'WOMEN', to: '/collections/womens-sneakers' },
   { label: 'KIDS', to: '/collections/kids-sneakers' },
   { label: 'UNISEX', to: '/collections/unisex-sneakers' },
+  { label: 'JOURNAL', to: '/journal' },
 ];
 
 const MEMBER_LINKS = [
