@@ -69,7 +69,12 @@ export default function Footer() {
         </p>
 
         <div className="relative flex w-full flex-wrap gap-y-12 px-6 lg:px-[64px]">
-          <div className="grid flex-1 grid-cols-2 gap-x-[36px] gap-y-10 max-md:mx-auto max-md:w-fit max-md:flex-none max-md:gap-x-[64px] max-md:text-center md:grid-cols-4">
+          {/* md:grid-cols-4 (equal 1fr tracks) stretched each column to a
+              quarter of this flex-1 container's full width regardless of
+              how narrow its actual content was — that's what was reading as
+              a big gap between columns, not the gap-x value itself. Auto-
+              sized tracks let the columns hug their own content instead. */}
+          <div className="grid flex-1 grid-cols-2 gap-x-[36px] gap-y-10 max-md:mx-auto max-md:w-fit max-md:flex-none max-md:gap-x-[64px] max-md:text-center md:[grid-template-columns:repeat(4,max-content)] md:gap-x-[32px]">
             {COLUMNS.map((col) => (
               <div key={col.title} className="flex flex-col gap-[14px] max-md:items-center">
                 <h3 className="text-[11px] font-bold tracking-[0.12em]">{col.title}</h3>
