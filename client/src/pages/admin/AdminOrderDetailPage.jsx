@@ -53,15 +53,25 @@ export default function AdminOrderDetailPage() {
   };
 
   return (
-    <div className="mx-auto max-w-[820px]">
+    <>
+    <div className="mx-auto max-w-[820px] print:hidden">
       <Link to="/admin/orders" className="text-[13px] text-grey-500 hover:underline">
         ← Orders
       </Link>
       <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-[28px] font-black tracking-[-0.02em]">{order.orderNumber}</h1>
-        <span className="rounded-full bg-black px-4 py-[8px] text-[12px] font-bold text-off-white">
-          {order.status}
-        </span>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => window.print()}
+            className="rounded-full border border-black/15 px-4 py-[8px] text-[12px] font-bold hover:border-black"
+          >
+            🖨 Print Packing Slip
+          </button>
+          <span className="rounded-full bg-black px-4 py-[8px] text-[12px] font-bold text-off-white">
+            {order.status}
+          </span>
+        </div>
       </div>
       <p className="mt-1 text-[13px] text-grey-500">
         Placed {new Date(order.createdAt).toLocaleString('en-GB')}
@@ -169,5 +179,82 @@ export default function AdminOrderDetailPage() {
         </p>
       </section>
     </div>
+
+    {/* Packing slip — invisible on screen, only rendered when printing (the
+        button above calls window.print()). Deliberately its own plain
+        black-on-white layout rather than reusing the screen view above:
+        a courier needs the ship-to address, phone, and COD amount to be
+        the first thing on the page, not buried under admin chrome. No
+        return/"from" address — none exists anywhere in this codebase to
+        pull from, so it's left off rather than invented. */}
+    <div className="hidden print:block">
+      <style>{'@page { size: A4; margin: 16mm; }'}</style>
+
+      <header className="flex items-start justify-between border-b-[3px] border-black pb-4">
+        <div>
+          <p className="text-[24px] font-black tracking-[-0.02em]">SHOO</p>
+          <p className="text-[11px] tracking-[0.05em] text-grey-500">PACKING SLIP</p>
+        </div>
+        <div className="text-right">
+          <p className="text-[18px] font-bold">{order.orderNumber}</p>
+          <p className="text-[11px] text-grey-500">
+            {new Date(order.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+          </p>
+        </div>
+      </header>
+
+      <section className="mt-6">
+        <p className="text-[10px] font-bold tracking-[0.12em] text-grey-500">SHIP TO</p>
+        <p className="mt-2 text-[16px] font-bold">
+          {order.address.firstName} {order.address.lastName}
+        </p>
+        <p className="text-[13px]">{order.address.street}</p>
+        <p className="text-[13px]">
+          {order.address.city}, {order.address.postalCode}
+        </p>
+        <p className="text-[13px]">{order.address.country}</p>
+        <p className="mt-2 text-[15px] font-bold">📞 {order.address.phone}</p>
+        <p className="text-[12px] text-grey-500">{order.user?.email || order.guestEmail}</p>
+      </section>
+
+      <table className="mt-6 w-full border-collapse text-[13px]">
+        <thead>
+          <tr className="border-b-[2px] border-black text-left">
+            <th className="py-2 font-bold">Item</th>
+            <th className="py-2 font-bold">Color / Size</th>
+            <th className="py-2 text-center font-bold">Qty</th>
+            <th className="py-2 text-right font-bold">Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          {order.items.map((item) => (
+            <tr key={item.id} className="border-b border-black/25">
+              <td className="py-2">{item.productName}</td>
+              <td className="py-2">
+                {item.colorName} / {item.size}
+              </td>
+              <td className="py-2 text-center">{item.quantity}</td>
+              <td className="py-2 text-right">{formatPrice(item.total)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <div className="mt-4 flex flex-col items-end gap-[3px] text-[13px]">
+        <p>Subtotal — {formatPrice(order.subtotal)}</p>
+        {Number(order.discount) > 0 && (
+          <p>Discount{order.promoCode ? ` (${order.promoCode})` : ''} — −{formatPrice(order.discount)}</p>
+        )}
+        <p>Shipping — {Number(order.shippingCost) === 0 ? 'Free' : formatPrice(order.shippingCost)}</p>
+        <p className="mt-1 text-[18px] font-bold">Total — {formatPrice(order.total)}</p>
+      </div>
+
+      <div className="mt-6 border-t-[3px] border-black pt-4 text-center text-[15px] font-bold">
+        {order.paymentMethod === 'COD' && order.paymentStatus === 'UNPAID'
+          ? `COLLECT ${formatPrice(order.total)} — CASH ON DELIVERY`
+          : `${order.paymentMethod} · ${order.paymentStatus}`}
+      </div>
+    </div>
+    </>
   );
 }

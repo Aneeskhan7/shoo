@@ -49,7 +49,10 @@ export default function AdminLayout() {
 
   return (
     <div className="flex min-h-screen bg-off-white text-black">
-      <aside className="flex w-[260px] shrink-0 flex-col bg-black text-off-white">
+      {/* print:hidden — an order's packing slip (AdminOrderDetailPage) is the
+          only thing meant to come out of Ctrl+P/Save-as-PDF from admin; the
+          nav has no reason to be on a printed page. */}
+      <aside className="flex w-[260px] shrink-0 flex-col bg-black text-off-white print:hidden">
         <Link to="/admin" className="px-6 py-[26px] text-[18px] font-black tracking-[-0.02em]">
           SHOO <span className="text-green">ADMIN</span>
         </Link>
@@ -89,7 +92,7 @@ export default function AdminLayout() {
         </div>
       </aside>
 
-      <main className="min-w-0 flex-1 px-10 py-10">
+      <main className="min-w-0 flex-1 px-10 py-10 print:p-0">
         <Outlet />
       </main>
     </div>
