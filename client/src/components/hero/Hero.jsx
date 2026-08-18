@@ -132,6 +132,7 @@ export default function Hero() {
   const mobileSectionRef = useRef(null);
   const mobileStateRefs = useRef([]);
   const mobileShoeRefs = useRef([]);
+  const mobileScrollIndRef = useRef(null);
 
   // useLayoutEffect, not useEffect: a plain useEffect's cleanup is a passive
   // effect, deferred to run after paint. On a fast client-side route change,
@@ -228,7 +229,8 @@ export default function Hero() {
             },
           })
           .to(mobileStateRefs.current[0], { opacity: 0, ease: 'none' }, 0)
-          .fromTo(mobileStateRefs.current[1], { opacity: 0 }, { opacity: 1, ease: 'none' }, 0);
+          .fromTo(mobileStateRefs.current[1], { opacity: 0 }, { opacity: 1, ease: 'none' }, 0)
+          .to(mobileScrollIndRef.current, { opacity: 0, ease: 'none' }, 0);
       }
     }, sectionRef);
 
@@ -345,6 +347,11 @@ export default function Hero() {
       <section
         ref={mobileSectionRef}
         className="relative h-[100svh] w-full overflow-hidden lg:hidden"
+        // Each per-state div sets its own theme vars, but the scroll
+        // indicator below is a sibling, not their descendant, so it needs
+        // its own fallback here to resolve var(--hero-fg) — same THEME[1]
+        // default the desktop section initializes with.
+        style={{ ...THEME[1] }}
         aria-label="Featured releases"
       >
         {STATES.map((s, i) => {
@@ -389,7 +396,10 @@ export default function Hero() {
                   />
                 </div>
               </div>
-              <div className="absolute inset-x-0 bottom-8 z-10 px-6">
+              {/* bottom-14, not the original bottom-8 — frees up clearance
+                  at the very edge for the scroll indicator below so
+                  "COLOR ONE" and "SCROLL" don't crowd the same line. */}
+              <div className="absolute inset-x-0 bottom-14 z-10 px-6">
                 <p className="max-w-[280px] text-[14px] leading-[1.55] opacity-80">
                   {s.tagline[0]} {s.tagline[1]}
                 </p>
@@ -405,6 +415,17 @@ export default function Hero() {
             </div>
           );
         })}
+
+        {/* Was only ever built for the desktop section (scrollIndRef above)
+            — this pinned mobile section scrubs exactly the same way and had
+            no equivalent cue that there's more to scroll through. */}
+        <div
+          ref={mobileScrollIndRef}
+          className="pointer-events-none absolute inset-x-0 bottom-3 z-10 flex flex-col items-center gap-[5px]"
+        >
+          <span className="text-[8px] font-medium tracking-[0.16em] opacity-45">SCROLL</span>
+          <span className="h-[18px] w-px opacity-40" style={{ background: 'var(--hero-fg)' }} />
+        </div>
       </section>
     </>
   );
