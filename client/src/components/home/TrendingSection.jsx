@@ -55,7 +55,7 @@ function TrendingCard({ item, eager }) {
       {/* No card fill — the shoe sits directly on the section's own
           off-white background. A soft shadow beneath it is the only thing
           grounding it, since there's no card floor to imply one anymore. */}
-      <div className="relative flex aspect-[4/3] items-center justify-center">
+      <div className="relative flex aspect-[4/3] items-center justify-center p-8 lg:p-10">
         <img
           src={`/assets/trending/${item.image}.webp`}
           alt={`${item.name} — ${item.colorName}`}
@@ -121,9 +121,9 @@ export default function TrendingSection() {
         </div>
       </div>
 
-      <div className="mx-auto mt-14 grid max-w-[1200px] grid-cols-2 gap-6 lg:grid-cols-4">
+      <div className="mx-auto mt-14 grid max-w-[1200px] grid-cols-2 gap-6 lg:grid-cols-3">
         {filtered.map((item, i) => (
-          <TrendingCard key={item.id} item={item} eager={i < 4} />
+          <TrendingCard key={item.id} item={item} eager={i < 3} />
         ))}
       </div>
 
