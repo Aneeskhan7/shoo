@@ -39,11 +39,11 @@ const MATCHES = {
   Collab: (s) => s === 'Collab',
 };
 
-const BADGE_CLASS = { NEW: 'bg-green text-black', HOT: 'bg-off-white text-black' };
+const BADGE_CLASS = { NEW: 'bg-green text-black', HOT: 'bg-black text-off-white' };
 
 function TrendingCard({ item, eager }) {
   return (
-    <div className="group relative flex flex-col overflow-hidden rounded-[14px] border border-white/10 bg-[#141414]">
+    <div className="group relative flex flex-col">
       {item.badge && (
         <span
           className={`absolute left-3 top-3 z-10 rounded-full px-[10px] py-[4px] text-[9px] font-bold tracking-[0.06em] ${BADGE_CLASS[item.badge]}`}
@@ -52,30 +52,25 @@ function TrendingCard({ item, eager }) {
         </span>
       )}
 
-      <div className="relative flex aspect-[4/3] items-center justify-center p-6">
-        {/* Faint radial glow behind the shoe — the "spotlit on a display
-            case" cue, in place of an actual 3D shelf render. */}
-        <div
-          className="pointer-events-none absolute inset-0 opacity-70"
-          style={{ background: 'radial-gradient(circle at 50% 45%, rgba(198,255,0,0.14), transparent 65%)' }}
-        />
+      {/* No card fill — the shoe sits directly on the section's own
+          off-white background. A soft shadow beneath it is the only thing
+          grounding it, since there's no card floor to imply one anymore. */}
+      <div className="relative flex aspect-[4/3] items-center justify-center">
         <img
           src={`/assets/trending/${item.image}.webp`}
           alt={`${item.name} — ${item.colorName}`}
           loading={eager ? 'eager' : 'lazy'}
-          className="relative h-full w-full object-contain drop-shadow-[0_16px_18px_rgba(0,0,0,0.6)] transition-transform duration-500 group-hover:scale-105"
+          className="relative h-full w-full object-contain drop-shadow-[0_14px_16px_rgba(0,0,0,0.22)] transition-transform duration-500 group-hover:scale-105"
         />
       </div>
 
-      {/* Shelf ledge — the brand-green accent line the display case sits on. */}
-      <div className="h-[3px] w-full bg-green" />
-
-      {/* Hover popup — name + colorway, deliberately no price. Slides up
-          from the shelf ledge, clipped by the card's own rounded corners
-          until hovered. */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-full bg-black/90 px-4 py-3 text-off-white opacity-0 backdrop-blur-sm transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100">
-        <p className="text-[13px] font-bold">{item.name}</p>
-        <p className="text-[11px] text-off-white/60">{item.colorName}</p>
+      {/* Hover reveal — name + colorway, deliberately no price. A small
+          on-brand label under the shoe, not a full-width card overlay. */}
+      <div className="pointer-events-none mt-3 flex flex-col items-center text-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+        <p className="rounded-full bg-black px-4 py-[6px] text-[12px] font-bold text-off-white">
+          {item.name}
+        </p>
+        <p className="mt-[6px] text-[11px] text-grey-500">{item.colorName}</p>
       </div>
     </div>
   );
