@@ -17,8 +17,6 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          // Keeps three.js out of the initial bundle — the 3D grid is lazy-loaded.
-          three: ['three', '@react-three/fiber', '@react-three/drei'],
           gsap: ['gsap', '@gsap/react'],
         },
       },

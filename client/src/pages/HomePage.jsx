@@ -2,7 +2,7 @@ import Seo from '../components/seo/Seo';
 import Hero from '../components/hero/Hero';
 import CollectionSection from '../components/home/CollectionSection';
 import ComfortSection from '../components/home/ComfortSection';
-import FutureSection from '../components/home/FutureSection';
+import TrendingSection from '../components/home/TrendingSection';
 
 /** Homepage — Figma 38:2 (1440×6340). Section order matches the frame. */
 export default function HomePage() {
@@ -18,7 +18,7 @@ export default function HomePage() {
       <Hero />
       <CollectionSection />
       <ComfortSection />
-      <FutureSection />
+      <TrendingSection />
     </>
   );
 }
