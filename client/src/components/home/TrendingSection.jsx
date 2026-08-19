@@ -43,9 +43,9 @@ const MATCHES = {
 
 const BADGE_CLASS = { NEW: 'bg-green text-black', HOT: 'bg-black text-off-white' };
 
-function TrendingCard({ item, eager }) {
+function TrendingCard({ item, eager, mobileHidden }) {
   return (
-    <div className="group relative flex flex-col">
+    <div className={`group relative flex-col ${mobileHidden ? 'hidden lg:flex' : 'flex'}`}>
       {item.badge && (
         <span
           className={`absolute left-3 top-3 z-10 rounded-full px-[10px] py-[4px] text-[9px] font-bold tracking-[0.06em] ${BADGE_CLASS[item.badge]}`}
@@ -125,7 +125,7 @@ export default function TrendingSection() {
 
       <div className="mx-auto mt-14 grid max-w-[1200px] grid-cols-2 gap-6 lg:grid-cols-4">
         {filtered.map((item, i) => (
-          <TrendingCard key={item.id} item={item} eager={i < 4} />
+          <TrendingCard key={item.id} item={item} eager={i < 4} mobileHidden={i >= 6} />
         ))}
       </div>
 
