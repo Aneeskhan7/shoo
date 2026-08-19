@@ -57,7 +57,7 @@ function TrendingCard({ item, eager, mobileHidden }) {
       {/* No card fill — the shoe sits directly on the section's own
           off-white background. A soft shadow beneath it is the only thing
           grounding it, since there's no card floor to imply one anymore. */}
-      <div className="relative flex aspect-[4/3] items-center justify-center p-9 lg:p-12">
+      <div className="relative flex aspect-[4/3] items-center justify-center p-9 lg:p-16">
         <img
           src={`/assets/trending/${item.image}.webp`}
           alt={`${item.name} — ${item.colorName}`}
