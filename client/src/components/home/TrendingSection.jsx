@@ -28,6 +28,8 @@ const SHOWCASE = [
   { id: 8, image: 'trending-08', name: 'Victoria 1985', colorName: 'White / Mustard', silhouette: 'Classic', badge: 'NEW' },
   { id: 9, image: 'trending-09', name: 'Air Jordan 1 High', colorName: 'Black / White / Mocha', silhouette: 'High Top' },
   { id: 10, image: 'trending-10', name: 'Adidas Samba', colorName: 'White / Black / Gum', silhouette: 'Collab' },
+  { id: 11, image: 'trending-11', name: 'PUMA Suede', colorName: 'Cream / Forest Green', silhouette: 'Classic' },
+  { id: 12, image: 'trending-12', name: 'New Balance 550', colorName: 'White / Grey', silhouette: 'Runners' },
 ];
 
 const MATCHES = {
