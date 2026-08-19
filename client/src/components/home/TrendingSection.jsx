@@ -9,17 +9,18 @@ import { Link } from 'react-router-dom';
  * to real catalogue slugs). "Browse All Styles" is the one real link, to
  * the actual shop.
  *
- * Two of the ten source photos (01, 03) came with a dark studio vignette
- * baked into their background rather than true transparency — those get a
- * dark frame instead of the wood-tone one so the vignette reads as
- * intentional, instead of a mismatched black box inside a tan card.
+ * Frame is a "display shelf" idea (black case, green ledge, the shoe lit
+ * against it) in SHOO's own black/green/off-white palette — not a literal
+ * wood-tone copy of the reference photo, which was a structural reference
+ * only. All 10 source photos are confirmed genuinely transparent (checked
+ * the raw alpha channel directly — corner alpha = 0 on every one).
  */
 const FILTERS = ['All', 'Runners', 'High Top', 'Classic', 'Trail', 'Collab'];
 
 const SHOWCASE = [
-  { id: 1, image: 'trending-01', name: 'Air Flight 89', colorName: 'White / Navy / Tan', silhouette: 'Classic', badge: 'HOT', frame: 'dark' },
+  { id: 1, image: 'trending-01', name: 'Air Flight 89', colorName: 'White / Navy / Tan', silhouette: 'Classic', badge: 'HOT' },
   { id: 2, image: 'trending-02', name: "Air Force 1 '07", colorName: 'Bone', silhouette: 'Classic' },
-  { id: 3, image: 'trending-03', name: 'Air Jordan 1 Mid', colorName: 'Black / White / Gum', silhouette: 'High Top', badge: 'NEW', frame: 'dark' },
+  { id: 3, image: 'trending-03', name: 'Air Jordan 1 Mid', colorName: 'Black / White / Gum', silhouette: 'High Top', badge: 'NEW' },
   { id: 4, image: 'trending-04', name: 'Air Jordan 4', colorName: 'Black / Cream', silhouette: 'High Top' },
   { id: 5, image: 'trending-05', name: 'Dunk Low', colorName: 'Two-Tone Grey', silhouette: 'Classic', badge: 'HOT' },
   { id: 6, image: 'trending-06', name: 'PUMA Tazon', colorName: 'Black / Red', silhouette: 'Runners' },
@@ -38,19 +39,11 @@ const MATCHES = {
   Collab: (s) => s === 'Collab',
 };
 
-const BADGE_CLASS = { NEW: 'bg-green text-black', HOT: 'bg-black text-off-white' };
+const BADGE_CLASS = { NEW: 'bg-green text-black', HOT: 'bg-off-white text-black' };
 
 function TrendingCard({ item, eager }) {
-  const dark = item.frame === 'dark';
   return (
-    <div
-      className="group relative flex flex-col overflow-hidden rounded-[14px]"
-      style={
-        dark
-          ? { background: 'linear-gradient(160deg, #262422 0%, #141312 100%)' }
-          : { background: 'linear-gradient(160deg, #d9b382 0%, #b78a53 55%, #96703f 100%)' }
-      }
-    >
+    <div className="group relative flex flex-col overflow-hidden rounded-[14px] border border-white/10 bg-[#141414]">
       {item.badge && (
         <span
           className={`absolute left-3 top-3 z-10 rounded-full px-[10px] py-[4px] text-[9px] font-bold tracking-[0.06em] ${BADGE_CLASS[item.badge]}`}
@@ -60,25 +53,27 @@ function TrendingCard({ item, eager }) {
       )}
 
       <div className="relative flex aspect-[4/3] items-center justify-center p-6">
+        {/* Faint radial glow behind the shoe — the "spotlit on a display
+            case" cue, in place of an actual 3D shelf render. */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-70"
+          style={{ background: 'radial-gradient(circle at 50% 45%, rgba(198,255,0,0.14), transparent 65%)' }}
+        />
         <img
           src={`/assets/trending/${item.image}.webp`}
           alt={`${item.name} — ${item.colorName}`}
           loading={eager ? 'eager' : 'lazy'}
-          className="h-full w-full object-contain drop-shadow-[0_16px_18px_rgba(0,0,0,0.35)] transition-transform duration-500 group-hover:scale-105"
+          className="relative h-full w-full object-contain drop-shadow-[0_16px_18px_rgba(0,0,0,0.6)] transition-transform duration-500 group-hover:scale-105"
         />
       </div>
 
-      {/* Shelf ledge — a nod to the wood-shelf display reference without
-          trying to fake its 3D perspective. */}
-      <div
-        className="h-[10px] w-full"
-        style={{ background: dark ? 'rgba(0,0,0,0.4)' : 'linear-gradient(180deg, rgba(0,0,0,0.28), rgba(0,0,0,0.06))' }}
-      />
+      {/* Shelf ledge — the brand-green accent line the display case sits on. */}
+      <div className="h-[3px] w-full bg-green" />
 
       {/* Hover popup — name + colorway, deliberately no price. Slides up
           from the shelf ledge, clipped by the card's own rounded corners
           until hovered. */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-full bg-black/85 px-4 py-3 text-off-white opacity-0 backdrop-blur-sm transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-full bg-black/90 px-4 py-3 text-off-white opacity-0 backdrop-blur-sm transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100">
         <p className="text-[13px] font-bold">{item.name}</p>
         <p className="text-[11px] text-off-white/60">{item.colorName}</p>
       </div>
@@ -91,7 +86,7 @@ export default function TrendingSection() {
   const filtered = useMemo(() => SHOWCASE.filter((item) => MATCHES[filter](item.silhouette)), [filter]);
 
   return (
-    <section className="bg-off-white px-6 py-20 text-black lg:px-16 lg:py-24">
+    <section className="border-t border-black/10 bg-off-white px-6 py-20 text-black lg:px-16 lg:py-24">
       <div className="mx-auto max-w-[1200px] text-center">
         <span className="mx-auto block h-[2px] w-[48px] bg-green" aria-hidden="true" />
         <h2
