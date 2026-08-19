@@ -98,6 +98,11 @@ export const getAdminOrder = (id) => api.get(`/admin/orders/${id}`).then((r) => 
 export const updateAdminOrderStatus = (id, status) =>
   api.patch(`/admin/orders/${id}/status`, { status }).then((r) => r.data);
 
+export const getAdminSubscribers = (params) =>
+  api.get('/admin/subscribers', { params }).then((r) => r.data);
+export const downloadAdminSubscribersCsv = () =>
+  api.get('/admin/subscribers/export', { responseType: 'blob' }).then((r) => r.data);
+
 export const getAdminPosts = () => api.get('/admin/blog').then((r) => r.data);
 export const getAdminPost = (id) => api.get(`/admin/blog/${id}`).then((r) => r.data);
 export const createAdminPost = (payload) => api.post('/admin/blog', payload).then((r) => r.data);
@@ -133,6 +138,7 @@ export const qk = {
   adminProduct: (id) => ['admin', 'product', id],
   adminOrders: (params) => ['admin', 'orders', params],
   adminOrder: (id) => ['admin', 'order', id],
+  adminSubscribers: (params) => ['admin', 'subscribers', params],
   posts: (params) => ['posts', params],
   post: (slug) => ['post', slug],
   adminPosts: () => ['admin', 'posts'],

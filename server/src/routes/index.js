@@ -40,6 +40,7 @@ import {
   setPrimaryImage,
 } from '../controllers/adminProductController.js';
 import { listAdminOrders, getAdminOrder, updateOrderStatus } from '../controllers/adminOrderController.js';
+import { listAdminSubscribers, exportAdminSubscribers } from '../controllers/adminSubscriberController.js';
 import { uploadProductImage as uploadMiddleware } from '../lib/upload.js';
 import { sitemap } from '../controllers/sitemapController.js';
 import { listPosts, getPost } from '../controllers/blogController.js';
@@ -143,6 +144,9 @@ router.patch('/admin/products/:id/images/:imageId/primary', setPrimaryImage);
 router.get('/admin/orders', listAdminOrders);
 router.get('/admin/orders/:id', getAdminOrder);
 router.patch('/admin/orders/:id/status', updateOrderStatus);
+
+router.get('/admin/subscribers', listAdminSubscribers);
+router.get('/admin/subscribers/export', exportAdminSubscribers);
 
 router.get('/admin/blog', listAdminPosts);
 router.post('/admin/blog', createPost);
