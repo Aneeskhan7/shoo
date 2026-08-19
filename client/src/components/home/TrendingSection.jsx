@@ -4,10 +4,9 @@ import { Link } from 'react-router-dom';
 /**
  * Section — Trending, replaces the old "Step Into The Future" 3D grid.
  * Ten curated studio shots (client/public/assets/trending/) rather than the
- * live catalogue — a showcase, not a listing, so no price is shown and
- * cards aren't linked to individual product pages (these don't correspond
- * to real catalogue slugs). "Browse All Styles" is the one real link, to
- * the actual shop.
+ * live catalogue — a showcase, not a listing, so no price is shown. These
+ * don't correspond to real catalogue slugs, so cards link to /shop (not an
+ * individual product page), same destination as "Browse All Styles".
  *
  * Frame is a "display shelf" idea (black case, green ledge, the shoe lit
  * against it) in SHOO's own black/green/off-white palette — not a literal
@@ -45,7 +44,10 @@ const BADGE_CLASS = { NEW: 'bg-green text-black', HOT: 'bg-black text-off-white'
 
 function TrendingCard({ item, eager, mobileHidden }) {
   return (
-    <div className={`group relative flex-col ${mobileHidden ? 'hidden lg:flex' : 'flex'}`}>
+    <Link
+      to="/shop"
+      className={`group relative flex-col ${mobileHidden ? 'hidden lg:flex' : 'flex'}`}
+    >
       {item.badge && (
         <span
           className={`absolute left-3 top-3 z-10 rounded-full px-[10px] py-[4px] text-[9px] font-bold tracking-[0.06em] ${BADGE_CLASS[item.badge]}`}
@@ -74,7 +76,7 @@ function TrendingCard({ item, eager, mobileHidden }) {
         </p>
         <p className="mt-[6px] text-[11px] text-grey-500">{item.colorName}</p>
       </div>
-    </div>
+    </Link>
   );
 }
 
