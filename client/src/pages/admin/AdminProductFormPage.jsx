@@ -599,7 +599,7 @@ export default function AdminProductFormPage() {
                   )}
                 </Field>
                 {form.offerEndsAt && (
-                  <Field label="Flash %  (while offer is live)">
+                  <Field label="Flash %">
                     <input
                       type="number"
                       min="0"
@@ -610,9 +610,8 @@ export default function AdminProductFormPage() {
                       placeholder="0"
                     />
                     {Number(v.flashDiscountPercent) > 0 && Number(v.price) > 0 && (
-                      <span className="text-[11px] font-medium text-red-600">
-                        → {formatPrice(Math.round(Number(v.price) * (1 - Number(v.flashDiscountPercent) / 100)))} until
-                        the timer ends
+                      <span className="whitespace-nowrap text-[11px] font-medium text-red-600">
+                        → {formatPrice(Math.round(Number(v.price) * (1 - Number(v.flashDiscountPercent) / 100)))}
                       </span>
                     )}
                   </Field>
