@@ -300,7 +300,12 @@ export default function ProductPage() {
           </div>
 
           {product.offerEndsAt && (
-            <CountdownTimer endsAt={product.offerEndsAt} label="Offer ends in" className="mt-[16px]" />
+            <CountdownTimer
+              endsAt={product.offerEndsAt}
+              label="Offer ends in"
+              className="mt-[16px]"
+              onExpire={() => qc.invalidateQueries({ queryKey: qk.product(slug) })}
+            />
           )}
 
           {/* Colour */}

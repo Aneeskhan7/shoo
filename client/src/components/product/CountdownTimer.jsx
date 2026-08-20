@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 function timeLeft(endsAt) {
   const diff = new Date(endsAt).getTime() - Date.now();
@@ -25,13 +25,26 @@ const pad = (n) => String(n).padStart(2, '0');
  * `label`, when given, is only rendered alongside a still-live timer — so a
  * label like "Offer ends in" never lingers on screen once the offer expires
  * and this returns null.
+ *
+ * `onExpire`, when given, fires once at the moment the timer reaches zero —
+ * callers use this to refetch the product so its price flips back from the
+ * flash price to the standing one immediately, without waiting for the
+ * visitor to reload the page.
  */
-export default function CountdownTimer({ endsAt, compact = false, label, className = '' }) {
+export default function CountdownTimer({ endsAt, compact = false, label, className = '', onExpire }) {
   const [left, setLeft] = useState(() => timeLeft(endsAt));
+  const onExpireRef = useRef(onExpire);
+  onExpireRef.current = onExpire;
 
   useEffect(() => {
     setLeft(timeLeft(endsAt));
-    const id = setInterval(() => setLeft(timeLeft(endsAt)), 1000);
+    const id = setInterval(() => {
+      setLeft((prev) => {
+        const next = timeLeft(endsAt);
+        if (prev && !next) onExpireRef.current?.();
+        return next;
+      });
+    }, 1000);
     return () => clearInterval(id);
   }, [endsAt]);
 

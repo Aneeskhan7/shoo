@@ -23,6 +23,7 @@ const emptyVariant = () => ({
   colorHex: '#0A0A0A',
   price: '', // this field is always the actual/original price, never the discounted one
   discountPercent: '0',
+  flashDiscountPercent: '0', // deeper, time-boxed % — only charged while the offer countdown is live
   stock: '1',
 });
 
@@ -32,6 +33,12 @@ const discountPercentOf = (v) =>
   v.compareAtPrice && Number(v.compareAtPrice) > Number(v.price)
     ? String(Math.round((1 - Number(v.price) / Number(v.compareAtPrice)) * 100))
     : '0';
+const flashDiscountPercentOf = (v) => {
+  const actual = Number(v.compareAtPrice ?? v.price);
+  return v.offerPrice && Number(v.offerPrice) < actual
+    ? String(Math.round((1 - Number(v.offerPrice) / actual) * 100))
+    : '0';
+};
 
 // Thrift Shoe Condition & Transparency — exact eight categories, DEFECTS
 // uses its own two-value scale, the rest share the wear scale.
@@ -131,6 +138,7 @@ export default function AdminProductFormPage() {
               ...v,
               price: actualPriceOf(v),
               discountPercent: discountPercentOf(v),
+              flashDiscountPercent: flashDiscountPercentOf(v),
               stock: String(v.stock),
             }))
           : [emptyVariant()],
@@ -213,10 +221,15 @@ export default function AdminProductFormPage() {
           .filter((v) => v.size.trim() && v.colorName.trim())
           .map((v) => {
             // v.price is always the actual/original price the admin typed —
-            // the discount, when set, derives the real selling price from it.
+            // both discounts derive the real selling price from it: the
+            // standing one always applies, the flash one only while the
+            // offer countdown above is live (server re-checks that, not
+            // trusted from here).
             const actual = Number(v.price);
             const discount = Number(v.discountPercent || 0);
             const price = discount > 0 ? Math.round(actual * (1 - discount / 100)) : actual;
+            const flashDiscount = Number(v.flashDiscountPercent || 0);
+            const offerPrice = flashDiscount > 0 ? Math.round(actual * (1 - flashDiscount / 100)) : null;
             return {
               ...(v.id ? { id: v.id } : {}),
               size: v.size.trim(),
@@ -224,6 +237,7 @@ export default function AdminProductFormPage() {
               colorHex: v.colorHex,
               price,
               compareAtPrice: discount > 0 ? actual : null,
+              offerPrice,
               stock: Number(v.stock),
             };
           }),
@@ -526,7 +540,12 @@ export default function AdminProductFormPage() {
           </div>
           <div className="mt-4 flex flex-col gap-3">
             {form.variants.map((v, i) => (
-              <div key={v.id || i} className="grid grid-cols-2 gap-2 rounded-[6px] border border-black/10 p-3 sm:grid-cols-7">
+              <div
+                key={v.id || i}
+                className={`grid grid-cols-2 gap-2 rounded-[6px] border border-black/10 p-3 ${
+                  form.offerEndsAt ? 'sm:grid-cols-8' : 'sm:grid-cols-7'
+                }`}
+              >
                 <Field label="Size">
                   <input
                     required
@@ -579,6 +598,25 @@ export default function AdminProductFormPage() {
                     </span>
                   )}
                 </Field>
+                {form.offerEndsAt && (
+                  <Field label="Flash %  (while offer is live)">
+                    <input
+                      type="number"
+                      min="0"
+                      max="90"
+                      value={v.flashDiscountPercent}
+                      onChange={(e) => setVariant(i, 'flashDiscountPercent', e.target.value)}
+                      className={inputCls}
+                      placeholder="0"
+                    />
+                    {Number(v.flashDiscountPercent) > 0 && Number(v.price) > 0 && (
+                      <span className="text-[11px] font-medium text-red-600">
+                        → {formatPrice(Math.round(Number(v.price) * (1 - Number(v.flashDiscountPercent) / 100)))} until
+                        the timer ends
+                      </span>
+                    )}
+                  </Field>
+                )}
                 <Field label="Stock">
                   <label className={`flex h-[42px] items-center gap-2 rounded-[6px] border border-black/15 bg-white px-3 text-[13px] ${String(v.stock) === '1' ? 'text-black' : 'text-grey-500'}`}>
                     <input

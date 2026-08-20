@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import prisma from '../config/prisma.js';
 import { ApiError, asyncHandler } from '../middleware/errorHandler.js';
+import { effectiveVariantPrice } from '../lib/offerPrice.js';
 
 const listQuery = z.object({
   q: z.string().trim().optional(),
@@ -64,17 +65,30 @@ const sizeValue = (size) => parseFloat(String(size).replace(/[^\d.]/g, '')) || 0
 
 /** Flattens variants into the price range + swatch list the cards and PLP need. */
 const shape = (p) => {
-  const prices = p.variants.map((v) => Number(v.price));
+  // While a limited-time offer is running (product.offerEndsAt still in the
+  // future), each variant's deeper offerPrice is what's actually charged —
+  // effectiveVariantPrice() is the single source of truth for that, also
+  // used by cart/checkout pricing (lib/pricing.js), so the two can never
+  // disagree. Once offerEndsAt passes, this transparently falls back to the
+  // variant's standing `price` — no cleanup job needed to "end" the offer.
+  const effPrice = (v) => effectiveVariantPrice(p.offerEndsAt, v);
+
+  const prices = p.variants.map(effPrice);
   const colors = [...new Map(p.variants.map((v) => [v.colorName, v.colorHex])).entries()].map(
     ([name, hex]) => ({ name, hex }),
   );
   const colorRank = new Map(colors.map((c, i) => [c.name, i]));
 
-  const variants = [...p.variants].sort(
-    (a, b) =>
-      colorRank.get(a.colorName) - colorRank.get(b.colorName) ||
-      sizeValue(a.size) - sizeValue(b.size),
-  );
+  // Each variant's `price` is overwritten with its effective price here —
+  // storefront/cart code downstream (PDP variant selector, quick-add) only
+  // ever needs "what you'd pay right now," never the raw standing value.
+  const variants = [...p.variants]
+    .sort(
+      (a, b) =>
+        colorRank.get(a.colorName) - colorRank.get(b.colorName) ||
+        sizeValue(a.size) - sizeValue(b.size),
+    )
+    .map((v) => ({ ...v, price: effPrice(v) }));
 
   const stocks = p.variants.map((v) => v.stock);
   const inStock = stocks.some((s) => s > 0);
@@ -84,13 +98,15 @@ const shape = (p) => {
   const stockStatus = !inStock ? 'SOLD_OUT' : stocks.every((s) => s > 0) ? 'AVAILABLE' : 'LIMITED';
 
   // Discount badge follows the same variant minPrice picks — the cheapest
-  // variant's compareAtPrice, when it's actually higher than what it charges.
+  // variant's compareAtPrice, when it's actually higher than what it charges
+  // right now (standing or flash, whichever applies).
   const cheapest = p.variants.length
-    ? p.variants.reduce((a, b) => (Number(a.price) <= Number(b.price) ? a : b))
+    ? p.variants.reduce((a, b) => (effPrice(a) <= effPrice(b) ? a : b))
     : null;
+  const cheapestPrice = cheapest ? effPrice(cheapest) : null;
   const discountPercent =
-    cheapest?.compareAtPrice && Number(cheapest.compareAtPrice) > Number(cheapest.price)
-      ? Math.round((1 - Number(cheapest.price) / Number(cheapest.compareAtPrice)) * 100)
+    cheapest?.compareAtPrice && Number(cheapest.compareAtPrice) > cheapestPrice
+      ? Math.round((1 - cheapestPrice / Number(cheapest.compareAtPrice)) * 100)
       : 0;
 
   return {

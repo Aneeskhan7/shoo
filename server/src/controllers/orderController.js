@@ -32,7 +32,7 @@ const createSchema = z.object({
 const loadVariants = (ids) =>
   prisma.productVariant.findMany({
     where: { id: { in: ids } },
-    include: { product: { select: { id: true, name: true, slug: true } } },
+    include: { product: { select: { id: true, name: true, slug: true, offerEndsAt: true } } },
   });
 
 /** POST /api/cart/validate — re-prices a client-side cart against the database. */
@@ -79,7 +79,7 @@ export const createOrder = asyncHandler(async (req, res) => {
   const order = await prisma.$transaction(async (tx) => {
     const variants = await tx.productVariant.findMany({
       where: { id: { in: body.items.map((i) => i.variantId) } },
-      include: { product: { select: { id: true, name: true, slug: true } } },
+      include: { product: { select: { id: true, name: true, slug: true, offerEndsAt: true } } },
     });
 
     const promo = body.promoCode

@@ -222,6 +222,9 @@ const variantInput = z
     // Original pre-discount price. Present + greater than `price` = a
     // discount is running (struck-through price + % badge on the storefront).
     compareAtPrice: z.number().positive().optional().nullable(),
+    // Deeper, time-boxed price — charged instead of `price` only while the
+    // product's offerEndsAt hasn't passed (see lib/offerPrice.js).
+    offerPrice: z.number().positive().optional().nullable(),
     // Thrift stock: each size/color is a single physical pair — 0 (sold) or
     // 1 (available), never a bulk quantity.
     stock: z.number().int().min(0).max(1, 'Each size/color is a single pair — stock is 0 or 1'),
@@ -382,6 +385,7 @@ export const updateProduct = asyncHandler(async (req, res) => {
             colorHex: v.colorHex,
             price: v.price,
             compareAtPrice: v.compareAtPrice ?? null,
+            offerPrice: v.offerPrice ?? null,
             stock: v.stock,
           },
         });

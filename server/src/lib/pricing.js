@@ -1,4 +1,5 @@
 import { ApiError } from '../middleware/errorHandler.js';
+import { effectiveVariantPrice } from './offerPrice.js';
 
 /**
  * Shipping costs are placeholder PKR figures (typical domestic courier
@@ -37,7 +38,10 @@ export function priceCart({ lines, variants, shippingMethod = 'STANDARD', promo 
         `${variant.product.name} (${variant.colorName} / ${variant.size}) has only ${variant.stock} left`,
       );
     }
-    const unitPrice = Number(variant.price);
+    // Same effective-price logic as the storefront (productController.js's
+    // shape()) — a running flash offer is honored, an expired one isn't,
+    // and this is recomputed from the DB regardless of what the client sent.
+    const unitPrice = effectiveVariantPrice(variant.product.offerEndsAt, variant);
     return {
       variantId: variant.id,
       productId: variant.productId,

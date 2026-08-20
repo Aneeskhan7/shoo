@@ -139,10 +139,15 @@ model ProductVariant {
   size      String // "US 9"
   colorName String // "Deep Noir"
   colorHex  String // "#0A0A0A"
-  price     Decimal @db.Decimal(10, 2) // actual amount charged — cart/checkout always read this
-  // Original pre-discount price, shown struck through next to `price` when
-  // set and greater than it. Null = no discount running on this variant.
+  price     Decimal @db.Decimal(10, 2) // standing amount charged once any offerEndsAt has passed
+  // Original pre-discount price, shown struck through next to the effective
+  // price when set and greater than it. Null = no discount running on this variant.
   compareAtPrice Decimal? @db.Decimal(10, 2)
+  // Deeper, time-boxed discount — charged instead of `price` only while the
+  // parent Product's offerEndsAt is still in the future (see
+  // lib/offerPrice.js). Once that passes, price/checkout fall straight back
+  // to the standing `price` above with no cleanup job needed.
+  offerPrice Decimal? @db.Decimal(10, 2)
   stock     Int     @default(0)
   sku       String  @unique
 

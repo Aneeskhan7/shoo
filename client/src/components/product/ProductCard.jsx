@@ -126,6 +126,7 @@ export default function ProductCard({ product, badge, eager = false }) {
               compact
               label="Offer ends in"
               className="mt-[8px] block text-[11px] font-semibold text-red-600"
+              onExpire={() => qc.invalidateQueries({ queryKey: ['products'] })}
             />
           )}
           <p className="mt-[10px] text-[11px] tracking-[0.01em] text-grey-500">Free shipping</p>
