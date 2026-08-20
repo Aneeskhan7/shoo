@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import StarRating from '../ui/StarRating';
 import ProductImage from '../ui/ProductImage';
+import CountdownTimer from './CountdownTimer';
 import { formatPrice } from '../ui/Price';
 import { getProductImage } from '../../lib/productImages';
 import { qk } from '../../lib/api';
@@ -119,6 +120,14 @@ export default function ProductCard({ product, badge, eager = false }) {
               </span>
             )}
           </div>
+          {product.offerEndsAt && (
+            <CountdownTimer
+              endsAt={product.offerEndsAt}
+              compact
+              label="Offer ends in"
+              className="mt-[8px] block text-[11px] font-semibold text-red-600"
+            />
+          )}
           <p className="mt-[10px] text-[11px] tracking-[0.01em] text-grey-500">Free shipping</p>
         </div>
       </Link>

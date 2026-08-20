@@ -244,6 +244,8 @@ const productInput = z.object({
   silhouette: z.string().trim().max(60).optional().nullable(),
   isActive: z.boolean().default(true),
   isFeatured: z.boolean().default(false),
+  // Limited-time offer countdown. Empty string/null = no offer running.
+  offerEndsAt: z.coerce.date().optional().nullable(),
   tags: z.array(z.string().trim().min(1)).default([]),
   variants: z.array(variantInput).default([]),
   conditions: z.array(conditionItemInput).default([]),
@@ -295,6 +297,7 @@ export const createProduct = asyncHandler(async (req, res) => {
       silhouette: body.silhouette || null,
       isActive: body.isActive,
       isFeatured: body.isFeatured,
+      offerEndsAt: body.offerEndsAt || null,
       tags: { create: body.tags.map((tag) => ({ tag })) },
       variants: {
         create: body.variants.map(({ id: _id, ...v }) => ({ ...v, sku: skuFor(slug, v) })),
@@ -404,6 +407,7 @@ export const updateProduct = asyncHandler(async (req, res) => {
         silhouette: body.silhouette || null,
         isActive: body.isActive,
         isFeatured: body.isFeatured,
+        offerEndsAt: body.offerEndsAt || null,
         tags: { create: body.tags.map((tag) => ({ tag })) },
       },
       include: productInclude,

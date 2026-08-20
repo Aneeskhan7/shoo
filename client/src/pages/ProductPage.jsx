@@ -17,6 +17,7 @@ import ProductImage from '../components/ui/ProductImage';
 import { getProductImages } from '../lib/productImages';
 import ProductCard from '../components/product/ProductCard';
 import ReviewCard from '../components/product/ReviewCard';
+import CountdownTimer from '../components/product/CountdownTimer';
 import ConditionReport from '../components/product/ConditionReport';
 import { formatPrice } from '../components/ui/Price';
 import Seo from '../components/seo/Seo';
@@ -297,6 +298,10 @@ export default function ProductPage() {
               3D Preview Available
             </span>
           </div>
+
+          {product.offerEndsAt && (
+            <CountdownTimer endsAt={product.offerEndsAt} label="Offer ends in" className="mt-[16px]" />
+          )}
 
           {/* Colour */}
           <p className="mt-[28px] text-[11px] font-medium tracking-[0.1em]">

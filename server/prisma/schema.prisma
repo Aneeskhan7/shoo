@@ -103,6 +103,10 @@ model Product {
   silhouette  String? // drives the 3D grid filter
   isActive    Boolean  @default(true)
   isFeatured  Boolean  @default(false)
+  // Limited-time offer countdown. Null = no offer running. A past timestamp
+  // reads the same as null on the storefront (see shape() in
+  // productController.js) — no cron needed to "end" it.
+  offerEndsAt DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

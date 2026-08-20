@@ -64,10 +64,18 @@ const emptyForm = () => ({
   silhouette: '',
   isActive: true,
   isFeatured: false,
+  offerEndsAt: '', // datetime-local string; '' = no limited-time offer
   tags: [],
   variants: [emptyVariant()],
   conditions: emptyConditions(),
 });
+
+/** ISO string → the local "YYYY-MM-DDTHH:mm" value <input type="datetime-local"> expects. */
+const toLocalInputValue = (iso) => {
+  const d = new Date(iso);
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
 
 function Field({ label, children }) {
   return (
@@ -116,6 +124,7 @@ export default function AdminProductFormPage() {
         silhouette: p.silhouette || '',
         isActive: p.isActive,
         isFeatured: p.isFeatured,
+        offerEndsAt: p.offerEndsAt ? toLocalInputValue(p.offerEndsAt) : '',
         tags: p.tags,
         variants: p.variants.length
           ? p.variants.map((v) => ({
@@ -199,6 +208,7 @@ export default function AdminProductFormPage() {
         tagline: form.tagline || undefined,
         story: form.story || undefined,
         silhouette: form.silhouette || undefined,
+        offerEndsAt: form.offerEndsAt ? new Date(form.offerEndsAt).toISOString() : null,
         variants: form.variants
           .filter((v) => v.size.trim() && v.colorName.trim())
           .map((v) => {
@@ -457,6 +467,31 @@ export default function AdminProductFormPage() {
               <input type="checkbox" checked={form.isFeatured} onChange={setChecked('isFeatured')} />
               Featured
             </label>
+          </div>
+
+          <div className="sm:col-span-2">
+            <span className="text-[12px] font-medium text-grey-700">Limited-time offer</span>
+            <p className="mt-1 text-[11px] text-grey-500">
+              Set an end date/time to show a live countdown on this shoe's card and product page. Leave blank
+              for no countdown.
+            </p>
+            <div className="mt-2 flex items-center gap-2">
+              <input
+                type="datetime-local"
+                value={form.offerEndsAt}
+                onChange={set('offerEndsAt')}
+                className={inputCls}
+              />
+              {form.offerEndsAt && (
+                <button
+                  type="button"
+                  onClick={() => setForm((f) => ({ ...f, offerEndsAt: '' }))}
+                  className="h-[42px] shrink-0 rounded-[6px] border border-black/15 px-3 text-[12px] font-medium hover:border-black"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="sm:col-span-2">
